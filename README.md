@@ -1,4 +1,8 @@
 # Wheel of Fortune
+Semestral project for PV247
+
+## Authors
+- Tomas Psota and Michal Salasek
 
 ## Available Scripts
 
