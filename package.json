@@ -4,29 +4,30 @@
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.4",
-		"@emotion/styled": "^11.10.4",
-		"@mui/icons-material": "^5.10.9",
-		"@mui/material": "^5.10.10",
+    "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.9",
+    "@mui/material": "^5.10.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.3",
     "react-scripts": "5.0.1"
   },
   "devDependencies": {
     "@haaxor1689/eslint-config": "2.0.2",
-		"@haaxor1689/prettier-config": "2.0.1",
+    "@haaxor1689/prettier-config": "2.0.1",
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "5.38.1",
-		"@typescript-eslint/parser": "5.38.1",
-		"eslint": "8.24.0",
-		"eslint-config-prettier": "8.5.0",
-		"eslint-plugin-import": "2.26.0",
-		"eslint-plugin-jsx-a11y": "6.6.1",
-		"eslint-plugin-prefer-arrow": "1.2.3",
-		"eslint-plugin-prettier": "4.2.1",
-		"eslint-plugin-react": "^7.31.10",
-		"prettier": "2.7.1",
+    "@typescript-eslint/parser": "5.38.1",
+    "eslint": "8.24.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-jsx-a11y": "6.6.1",
+    "eslint-plugin-prefer-arrow": "1.2.3",
+    "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-react": "^7.31.10",
+    "prettier": "2.7.1",
     "typescript": "^4.4.2"
   },
   "scripts": {
@@ -37,7 +38,7 @@
     "lint": "eslint \"./src/**/*.{ts,tsx}\" --fix && prettier \"./src/**/*.{ts,tsx}\" --check"
   },
   "eslintConfig": {
-		"extends": "@haaxor1689/eslint-config"
+    "extends": "@haaxor1689/eslint-config"
   },
   "prettier": "@haaxor1689/prettier-config",
   "browserslist": {
