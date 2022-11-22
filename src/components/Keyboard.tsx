@@ -1,23 +1,41 @@
-import { Button, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
+
+import KeyboardButton from './KeyboardButton';
+
+const simulateKeyPress = (key: string) => {
+	console.log(key);
+};
 
 const Keyboard = () => (
-	<>
+	<Stack sx={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
 		<Stack direction="row" sx={{ display: 'flex', justifyContent: 'center' }}>
 			{['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => (
-				<Button key={key}>{key}</Button>
+				<KeyboardButton
+					key={key}
+					name={key}
+					keyPressAction={() => simulateKeyPress(key)}
+				/>
 			))}
 		</Stack>
 		<Stack direction="row" sx={{ display: 'flex', justifyContent: 'center' }}>
 			{['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => (
-				<Button key={key}>{key}</Button>
+				<KeyboardButton
+					key={key}
+					name={key}
+					keyPressAction={() => simulateKeyPress(key)}
+				/>
 			))}
 		</Stack>
 		<Stack direction="row" sx={{ display: 'flex', justifyContent: 'center' }}>
 			{['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => (
-				<Button key={key}>{key}</Button>
+				<KeyboardButton
+					key={key}
+					name={key}
+					keyPressAction={() => simulateKeyPress(key)}
+				/>
 			))}
 		</Stack>
-	</>
+	</Stack>
 );
 
 export default Keyboard;
