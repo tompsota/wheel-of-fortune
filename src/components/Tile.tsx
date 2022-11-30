@@ -1,18 +1,60 @@
 import { Grid } from '@mui/material';
 import { FC } from 'react';
 
-import { Tile } from '../hooks/useGame';
+import { BoardStateTile } from '../hooks/useGame';
 
 type Props = {
-	field: Tile;
+	tile: BoardStateTile;
 };
 
-const Tile: FC<Props> = ({ field }) => {
-	const _tmp = 0;
-	return field.hidden || field.value === undefined ? (
-		<Grid>empty tile</Grid>
-	) : (
-		<Grid>{field.value}</Grid>
+// rename one of the Tiles to 'BoardTile' ?
+const Tile: FC<Props> = ({ tile }) => {
+	// empty/blank tile
+	if (tile.value === undefined) {
+		return (
+			<Grid
+				sx={{
+					m: 1,
+					fontSize: 25,
+					width: 90,
+					height: 90,
+					border: '1px solid blue'
+				}}
+			/>
+		);
+	}
+
+	// hidden tile with letter
+	if (tile.hidden) {
+		return (
+			<Grid
+				sx={{
+					m: 1,
+					fontSize: 25,
+					width: 90,
+					height: 90,
+					border: '1px solid blue'
+				}}
+			>
+				?
+			</Grid>
+		);
+	}
+
+	// uncovered tile, i.e. letter
+	return (
+		<Grid
+			sx={{
+				m: 1,
+				fontSize: 25,
+				width: 90,
+				height: 90,
+				border: '1px solid blue',
+				textAlign: 'center'
+			}}
+		>
+			{tile.value}
+		</Grid>
 	);
 };
 

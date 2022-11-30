@@ -17,13 +17,15 @@ const UserContext = createContext<UserState>(undefined as never);
 
 // Wrapped context provider
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
+	const localStorageUserString = localStorage.getItem('user');
 	// We load user from local storage
 	const localStorageUser =
-		localStorage.user === null
+		localStorageUserString === null
 			? undefined
-			: (JSON.parse(localStorage.user) as User);
+			: (JSON.parse(localStorageUserString) as User);
 
 	const userState = useState<User | undefined>(localStorageUser);
+	// const userState = useState<User | undefined>(undefined);
 	const [_, setUser] = userState;
 
 	// // Setup onAuthChanged once when component is mounted

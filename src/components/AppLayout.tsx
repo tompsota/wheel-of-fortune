@@ -19,6 +19,8 @@ import LoginIcon from '@mui/icons-material/Login';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { Container } from '@mui/material';
 
+import useLoggedInUser from '../hooks/useLoggedInUser';
+
 import AppDrawerListItem from './AppDrawerListItem';
 
 const drawerWidth = 240;
@@ -108,6 +110,8 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 		setDrawerOpen(false);
 	};
 
+	const user = useLoggedInUser();
+
 	return (
 		<Box sx={{ display: 'flex' }}>
 			<CssBaseline />
@@ -179,14 +183,26 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 							linkTo="/about"
 							onClick={() => changeActiveTab(3)}
 						/>
-						<AppDrawerListItem
-							text="Login"
-							open={drawerOpen}
-							selected={activeTab === 4}
-							icon={<LoginIcon />}
-							linkTo="/login"
-							onClick={() => changeActiveTab(4)}
-						/>
+
+						{!user ? (
+							<AppDrawerListItem
+								text="Login"
+								open={drawerOpen}
+								selected={activeTab === 4}
+								icon={<LoginIcon />}
+								linkTo="/login"
+								onClick={() => changeActiveTab(4)}
+							/>
+						) : (
+							<AppDrawerListItem
+								text="Logout"
+								open={drawerOpen}
+								selected={activeTab === 4}
+								icon={<LoginIcon />}
+								linkTo="/logout"
+								onClick={() => changeActiveTab(4)}
+							/>
+						)}
 					</List>
 				</Container>
 			</Drawer>

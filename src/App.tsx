@@ -7,6 +7,7 @@ import AppLayout from './components/AppLayout';
 import Home from './components/Home';
 import Leaderboard from './components/Leaderboard';
 import Login from './components/Login';
+import Logout from './components/Logout';
 import NotFound from './components/NotFound';
 import Play from './components/Play';
 import { UserProvider } from './hooks/useLoggedInUser';
@@ -26,6 +27,7 @@ const App = () => {
 							<Route path="/leaderboard" element={<Leaderboard />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/login" element={<Login />} />
+							<Route path="/logout" element={<Logout />} />
 							<Route path="*" element={<NotFound />} />
 						</Routes>
 					</AppLayout>

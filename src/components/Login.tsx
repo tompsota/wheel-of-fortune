@@ -73,7 +73,7 @@ const Login = () => {
 					<Typography
 						variant="caption"
 						textAlign="right"
-						sx={{ color: 'error.main' }}
+						sx={{ color: 'error.main' }} // TODO: mozno upravit/pridat farby do theme/palette
 					>
 						{submitError}
 					</Typography>

@@ -1,13 +1,24 @@
 import { FC } from 'react';
-import { Grid } from '@mui/material';
+import { Stack } from '@mui/material';
 
-import useGame from '../hooks/useGame';
+import useGame, { BoardStateRow } from '../hooks/useGame';
 
 import Tile from './Tile';
 
 const Board: FC = () => {
-	const { board, phrase, onLetterGuessed, onRefresh } = useGame();
-	// const rows =
+	const { board, phrase, onLetterGuessed } = useGame();
+
+	const boardRow = (row: BoardStateRow, i: number) => (
+		<Stack
+			key={i}
+			direction="row"
+			sx={{ display: 'flex', justifyContent: 'center' }}
+		>
+			{row.map((tile, j) => (
+				<Tile key={j} tile={tile} />
+			))}
+		</Stack>
+	);
 
 	// here, we would like to have a list of rows, where row is a list of tiles
 	// problem: it's much easier to work with flat/1D array,
@@ -15,11 +26,15 @@ const Board: FC = () => {
 	// transform phrase directly into 2D array, and just work with it
 	// or work with 1D array and create a function, that returns 2D array from 1D array ?
 	return (
-		<Grid container spacing={1}>
-			{board.map((field, i) => (
-				<Tile key={i} field={field} />
-			))}
-		</Grid>
+		<Stack sx={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
+			{board.map(boardRow)}
+		</Stack>
+
+		// <Grid container spacing={1}>
+		// 	{board.map((field, i) => (
+		// 		<Tile key={i} field={field} />
+		// 	))}
+		// </Grid>
 	);
 };
 

@@ -3,7 +3,10 @@ import { Stack } from '@mui/material';
 import KeyboardButton from './KeyboardButton';
 
 const simulateKeyPress = (key: string) => {
-	console.log(key);
+	const keydownEvent = new KeyboardEvent('keydown', { key });
+	// console.log(key);
+	console.log(keydownEvent);
+	// have to emit the event somehow
 };
 
 const Keyboard = () => (
