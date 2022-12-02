@@ -1,5 +1,5 @@
 import { addDoc, Timestamp } from 'firebase/firestore';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { gamesCollection } from '../utils/firebase';
 
@@ -23,7 +23,7 @@ export type GameStatus = 'Win' | 'Loss' | 'Unfinished';
 // const isPhraseSolved = (board: BoardState): boolean =>
 // 	board.every(field => field.hidden === false || field.value === undefined);
 
-const isPhraseSolvedRow = (board: BoardState): boolean =>
+const _isPhraseSolvedRow = (board: BoardState): boolean =>
 	board.every(row =>
 		row.every(field => field.hidden === false || field.value === undefined)
 	);
@@ -73,7 +73,7 @@ const useGame = (initialBoard: BoardState = []) => {
 	const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
 	const [gameStatus, setGameStatus] = useState<GameStatus>('Unfinished');
 	const [phrase, setPhrase] = useState<string>('');
-	const [refreshFlag, setRefreshFlag] = useState<boolean>(false);
+	// const [refreshFlag, setRefreshFlag] = useState<boolean>(false);
 
 	const initBoard = async () => {
 		const newPhrase = await getRandomPhrase();
