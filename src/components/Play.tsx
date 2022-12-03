@@ -4,7 +4,7 @@ import Board from './Board';
 import Keyboard from './Keyboard';
 
 const Play = () => (
-	<Grid container direction="column" sx={{ flexGrow: 1, height: '100%' }}>
+	<Grid container direction="column">
 		<Grid item xs={5}>
 			{/* <Typography>Play component</Typography> */}
 			<Board />

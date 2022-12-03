@@ -144,13 +144,14 @@ const useGame = (initialBoard: BoardState = []) => {
 		// IMPORTANT: the event listeners works with state as it was during registration of that listeners,
 		//    meaning that board is empty (or initialized if it 'had time to be executed'?), and also other
 		//    will be updated from that initial state
-		const listener = (e: KeyboardEvent) => {
-			isAlpha(e.key) && onLetterGuessed(e.key);
-		};
-		document.addEventListener('keydown', listener);
-		return () => {
-			document.removeEventListener('keydown', listener);
-		};
+		// const listener = (e: KeyboardEvent) => {
+		// 	// e.preventDefault();
+		// 	isAlpha(e.key) && onLetterGuessed(e.key);
+		// };
+		// document.addEventListener('keydown', listener);
+		// return () => {
+		// 	document.removeEventListener('keydown', listener);
+		// };
 	}, []);
 
 	// Send game result after the game ends
