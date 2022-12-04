@@ -1,8 +1,4 @@
-.rotate {
-	animation: rotation 25s infinite linear;
-}
-
-.rotate:hover {
+.mainImage:hover {
 	animation-duration: 3s;
 }
 

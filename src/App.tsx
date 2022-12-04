@@ -1,6 +1,7 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 
 import About from './components/About';
 import AppLayout from './components/AppLayout';
@@ -17,22 +18,33 @@ const App = () => {
 	const _tmp = 0; //TODO zmazat, je to tu aby nepindal linter
 	return (
 		<ThemeProvider theme={theme}>
-			<UserProvider>
-				<BrowserRouter>
-					<CssBaseline />
-					<AppLayout>
-						<Routes>
-							<Route path="/" element={<Home />} />
-							<Route path="/play" element={<Play />} />
-							<Route path="/leaderboard" element={<Leaderboard />} />
-							<Route path="/about" element={<About />} />
-							<Route path="/login" element={<Login />} />
-							<Route path="/logout" element={<Logout />} />
-							<Route path="*" element={<NotFound />} />
-						</Routes>
-					</AppLayout>
-				</BrowserRouter>
-			</UserProvider>
+			<SnackbarProvider
+				maxSnack={3}
+				anchorOrigin={{
+					vertical: 'top',
+					horizontal: 'right'
+				}}
+				autoHideDuration={1500}
+				preventDuplicate
+				hideIconVariant
+			>
+				<UserProvider>
+					<BrowserRouter>
+						<CssBaseline />
+						<AppLayout>
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/play" element={<Play />} />
+								<Route path="/leaderboard" element={<Leaderboard />} />
+								<Route path="/about" element={<About />} />
+								<Route path="/login" element={<Login />} />
+								<Route path="/logout" element={<Logout />} />
+								<Route path="*" element={<NotFound />} />
+							</Routes>
+						</AppLayout>
+					</BrowserRouter>
+				</UserProvider>
+			</SnackbarProvider>
 		</ThemeProvider>
 	);
 };

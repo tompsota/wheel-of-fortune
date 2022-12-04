@@ -1,4 +1,5 @@
 import { Button } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import { useEffect, useRef } from 'react';
 
@@ -8,6 +9,8 @@ type Props = {
 };
 
 const KeyboardButton = ({ name, keyPressAction }: Props) => {
+	const { enqueueSnackbar } = useSnackbar();
+
 	const [disabled, setDisabled] = useState(false);
 	const inputRef = useRef<HTMLButtonElement | null>(null);
 
@@ -32,11 +35,19 @@ const KeyboardButton = ({ name, keyPressAction }: Props) => {
 			variant="outlined"
 			onClick={() => {
 				setDisabled(true);
+				enqueueSnackbar(`+20 points for letter ${name}!`, {
+					variant: 'info'
+				});
 				keyPressAction();
 			}}
 			size="large"
 			disabled={disabled}
-			sx={{ m: 1, fontSize: 25, width: 90, height: 90 }}
+			sx={{
+				m: 1,
+				fontSize: '1.5vw',
+				width: '4.5vw',
+				height: '4.5vw'
+			}}
 		>
 			{name}
 		</Button>
