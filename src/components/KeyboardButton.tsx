@@ -1,7 +1,8 @@
 import { Button } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+import useGame from '../hooks/useGameTest';
 
 type Props = {
 	name: string;
@@ -13,6 +14,11 @@ const KeyboardButton = ({ name, keyPressAction }: Props) => {
 
 	const [disabled, setDisabled] = useState(false);
 	const inputRef = useRef<HTMLButtonElement | null>(null);
+
+	const game = useGame();
+	useEffect(() => {
+		setDisabled(false);
+	}, [game.rounds.length]);
 
 	useEffect(() => {
 		const listener = (e: KeyboardEvent) => {

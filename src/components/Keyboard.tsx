@@ -7,6 +7,7 @@ const simulateKeyPress = (key: string) => {
 	console.log(keydownEvent);
 	console.log(`letter ${key} guessed`);
 	// have to emit the event somehow
+	window.dispatchEvent(new KeyboardEvent('keydown', { key }));
 };
 
 const Keyboard = () => (

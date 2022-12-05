@@ -18,7 +18,7 @@ import {
 	Timestamp
 } from 'firebase/firestore';
 
-import { GameStatus } from '../hooks/useGame';
+import Game from '../types/Game';
 
 // Initialize Firebase
 initializeApp({
@@ -34,6 +34,7 @@ initializeApp({
 const auth = getAuth();
 
 // Sign up handler
+// TODO: create UserProfile
 export const signUp = (email: string, password: string) =>
 	createUserWithEmailAndPassword(auth, email, password);
 
@@ -49,7 +50,7 @@ export const onAuthChanged = (callback: (u: User | null) => void) =>
 	onAuthStateChanged(auth, callback);
 
 const provider = new GoogleAuthProvider();
-
+// TODO: create profile for first sign-in
 export const googleSignInWithPopup = () =>
 	signInWithPopup(auth, provider)
 		.then(result => {
@@ -74,29 +75,10 @@ export const googleSignInWithPopup = () =>
 // Firestore
 const db = getFirestore();
 
-// Reviews collection
-export type Review = {
-	by: string;
-	stars: number;
-	description?: string;
-};
-
-export const reviewsCollection = collection(
-	db,
-	'reviews'
-) as CollectionReference<Review>;
-
-export const reviewsDocument = (id: string) =>
-	doc(db, 'reviews', id) as DocumentReference<Review>;
-
-// Games collection
-export type Game = {
-	result: GameStatus;
-	date: Timestamp;
-	playerId: string | undefined;
-};
-
 export const gamesCollection = collection(
 	db,
 	'games'
 ) as CollectionReference<Game>;
+
+export const gameDocument = (id: string) =>
+	doc(db, 'games', id) as DocumentReference<Game>;
