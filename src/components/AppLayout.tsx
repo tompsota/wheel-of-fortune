@@ -228,6 +228,7 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 						}}
 					>
 						<Typography>username</Typography>
+						<Typography>Level XX</Typography>
 						<Typography>points</Typography>
 					</Box>
 				</Box>

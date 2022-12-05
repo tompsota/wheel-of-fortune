@@ -4,8 +4,8 @@ import KeyboardButton from './KeyboardButton';
 
 const simulateKeyPress = (key: string) => {
 	const keydownEvent = new KeyboardEvent('keydown', { key });
-	// console.log(key);
 	console.log(keydownEvent);
+	console.log(`letter ${key} guessed`);
 	// have to emit the event somehow
 };
 

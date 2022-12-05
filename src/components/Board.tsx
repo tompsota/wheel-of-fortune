@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 import useGame, { BoardStateRow } from '../hooks/useGame';
 
@@ -12,7 +12,7 @@ const Board: FC = () => {
 		<Stack
 			key={i}
 			direction="row"
-			sx={{ display: 'flex', justifyContent: 'center' }}
+			sx={{ display: 'flex', justifyContent: 'center', height: '100%' }}
 		>
 			{row.map((tile, j) => (
 				<Tile key={j} tile={tile} />
@@ -26,8 +26,26 @@ const Board: FC = () => {
 	// transform phrase directly into 2D array, and just work with it
 	// or work with 1D array and create a function, that returns 2D array from 1D array ?
 	return (
-		<Stack sx={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
-			{board.map(boardRow)}
+		<Stack
+			sx={{
+				display: 'flex',
+				justifyContent: 'center',
+				height: '100%'
+			}}
+		>
+			<Typography>Your sentence:</Typography>
+			<Stack
+				sx={{
+					backgroundColor: 'rgba(255, 255, 255, .1)',
+					padding: '1rem',
+					margin: '1rem'
+				}}
+			>
+				{board.map(boardRow)}
+			</Stack>
+			<Typography variant="caption" sx={{ alignSelf: 'flex-end' }}>
+				sentence author
+			</Typography>
 		</Stack>
 
 		// <Grid container spacing={1}>

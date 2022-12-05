@@ -15,9 +15,9 @@ const Tile: FC<Props> = ({ tile }) => {
 			<Grid
 				sx={{
 					m: 1,
-					fontSize: 25,
-					width: 90,
-					height: 90,
+					fontSize: '1vw',
+					width: '3.2vw',
+					height: '3.2vw',
 					border: '1px solid blue'
 				}}
 			/>
@@ -30,9 +30,9 @@ const Tile: FC<Props> = ({ tile }) => {
 			<Grid
 				sx={{
 					m: 1,
-					fontSize: 25,
-					width: 90,
-					height: 90,
+					fontSize: '1vw',
+					width: '3.2vw',
+					height: '3.2vw',
 					border: '1px solid blue'
 				}}
 			>
@@ -46,9 +46,9 @@ const Tile: FC<Props> = ({ tile }) => {
 		<Grid
 			sx={{
 				m: 1,
-				fontSize: 25,
-				width: 90,
-				height: 90,
+				fontSize: '1vw',
+				width: '3.2vw',
+				height: '3.2vw',
 				border: '1px solid blue',
 				textAlign: 'center'
 			}}
