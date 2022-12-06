@@ -1,10 +1,10 @@
 import { Grid } from '@mui/material';
 import { FC } from 'react';
 
-import { BoardStateTile } from '../hooks/useGame';
+import { BoardTile } from '../types/Board';
 
 type Props = {
-	tile: BoardStateTile;
+	tile: BoardTile;
 };
 
 // rename one of the Tiles to 'BoardTile' ?

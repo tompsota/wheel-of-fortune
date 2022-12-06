@@ -1,14 +1,30 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Stack, Typography } from '@mui/material';
 
-import useGame, { BoardStateRow } from '../hooks/useGame';
+// import useGame from '../hooks/useGame';
+
+import BoardState, { BoardRow } from '../types/Board';
+import { useCurrentRound } from '../hooks/useGameTest';
 
 import Tile from './Tile';
 
-const Board: FC = () => {
-	const { board, phrase, onLetterGuessed } = useGame();
+type Props = {
+	board: BoardState;
+};
 
-	const boardRow = (row: BoardStateRow, i: number) => (
+const Board: FC<Props> = ({ board }) => {
+	// const [round, setRound] = useCurrentRound();
+
+	// useEffect(() => {
+	// 	if (round.status !== 'BeforeInit') {
+	// 		return;
+	// 	}
+	// 	// setPhrase();
+	// }, []);
+
+	// const { board, phrase, onLetterGuessed } = useGame();
+
+	const boardRow = (row: BoardRow, i: number) => (
 		<Stack
 			key={i}
 			direction="row"

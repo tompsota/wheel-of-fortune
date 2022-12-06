@@ -18,6 +18,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import LoginIcon from '@mui/icons-material/Login';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { Container } from '@mui/material';
+import { Settings } from '@mui/icons-material';
 
 import useLoggedInUser from '../hooks/useLoggedInUser';
 
@@ -183,24 +184,32 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 							linkTo="/about"
 							onClick={() => changeActiveTab(3)}
 						/>
+						<AppDrawerListItem
+							text="Settings"
+							open={drawerOpen}
+							selected={activeTab === 4}
+							icon={<Settings />} //TODO add also logout icon once we have state
+							linkTo="/settings"
+							onClick={() => changeActiveTab(4)}
+						/>
 
 						{!user ? (
 							<AppDrawerListItem
 								text="Login"
 								open={drawerOpen}
-								selected={activeTab === 4}
+								selected={activeTab === 5}
 								icon={<LoginIcon />}
 								linkTo="/login"
-								onClick={() => changeActiveTab(4)}
+								onClick={() => changeActiveTab(5)}
 							/>
 						) : (
 							<AppDrawerListItem
 								text="Logout"
 								open={drawerOpen}
-								selected={activeTab === 4}
+								selected={activeTab === 5}
 								icon={<LoginIcon />}
 								linkTo="/logout"
-								onClick={() => changeActiveTab(4)}
+								onClick={() => changeActiveTab(5)}
 							/>
 						)}
 					</List>
