@@ -46,9 +46,9 @@ const GameSettings: FC = () => {
 			<GameSettingsItem
 				label="Round timer"
 				value={
-					gameSettings.numberOfGuesses === undefined
+					gameSettings.timer === undefined
 						? 'unlimited'
-						: gameSettings.numberOfGuesses?.toString()
+						: gameSettings.timer?.toString()
 				}
 				onChange={onTimerChanged}
 				options={{

@@ -28,25 +28,34 @@ const Play = () => {
 	const { enqueueSnackbar } = useSnackbar();
 	const navigate = useNavigate();
 
-	// const game = useGame();
 	const [game, setGame] = useGameContext();
 	// const [round, setRound] = useCurrentRound();
-	// const round = game.rounds[0] ?? getEmptyRound();
-	const [round, setRound] = useState<GameRound>(
-		game.rounds.at(-1) ?? getEmptyRound()
-	);
+
+	// const [round, setRound] = useState<GameRound>(
+	// 	game.rounds.at(-1) ?? getEmptyRound()
+	// );
+
+	const round = game.rounds.at(-1) ?? getEmptyRound();
 
 	// const [refreshFlag, setRefreshFlag] = useState(false);
 
-	useEffect(() => {
-		setRound(game.rounds.at(-1) ?? getEmptyRound(game.rounds.length + 1));
-	}, [game]);
+	// useEffect(() => {
+	// 	console.log('game updated');
+	// 	setRound(game.rounds.at(-1) ?? getEmptyRound(game.rounds.length + 1));
+	// }, [game]);
 
+	// the issue is that when we load Play component, Round has its status set to 'InProgress'
+	// but when we start the next round, new empty round is added to
 	useEffect(() => {
-		if (round.status === 'BeforeInit') {
+		if (round.status === 'InProgress' || round.status === 'BeforeInit') {
+			// if (true) {
 			const listener = (e: KeyboardEvent) => {
-				e.preventDefault();
-				console.log('on refresh - in listener');
+				console.log(
+					`keydown listener - Play - on refresh: ${JSON.stringify(e)}`
+				);
+				// e.preventDefault();
+				// console.log('on refresh - in listener');
+
 				isAlpha(e.key) && onLetterGuessed(e.key);
 			};
 			document.addEventListener('keydown', listener);
@@ -56,6 +65,14 @@ const Play = () => {
 			};
 		}
 	}, [round.status]);
+
+	// for when a new round is added
+	// try again with just one listener added on mount, but try to solve why it wasn't working
+	// - round wasn't getting updated? i.e. board wasn't updated?
+	// useEffect(() => {}, [game.rounds.length]);
+
+	// should get triggered when game gets updated, i.e. when we set new round (this round has a different round number)
+	// useEffect(() => {}, [round.roundNumber]);
 
 	const onLetterGuessed = (letter: string): LetterGuessedResult => {
 		if (round.status === 'Pass') {
@@ -101,19 +118,8 @@ const Play = () => {
 			return LetterGuessedResult.IncorrectLetter;
 		}
 
-		// update board, check if full phrase is guessed
-
-		// enqueueSnackbar(`Letter ${letter} is the phrase`);
-		console.log(`onLetterGuessed - board: ${JSON.stringify(round.board)}`);
-
-		const updatedBoard = getUpdatedBoard(round.board, letter);
-		console.log(
-			`onLetterGuessed - updated board: ${JSON.stringify(updatedBoard)}`
-		);
-		// setBoard(getUpdatedBoard(board, letter));
-
-		round.board = updatedBoard;
-
+		// letter is in phrase and wasn't guessed yet
+		round.board = getUpdatedBoard(round.board, letter);
 		round.score += 20;
 		setGame(updateCurrentRoundGame(game, round));
 		console.dir(`updated round: ${JSON.stringify(round)}`);
@@ -123,25 +129,16 @@ const Play = () => {
 			round.status = 'Pass';
 			enqueueSnackbar('You have successfully solved the phrase!');
 			// update round state, set times etc.
-			// create a new empty round in game
 		}
 
 		setGame(updateCurrentRoundGame(game, round));
-		// check for win / if number of guesses left reached 0,
-		// and handle win / loss
 		return LetterGuessedResult.CorrectLetter;
 	};
 
+	// executed upon pressing 'Next level' button => creates a new empty round
 	const onLoadNextRound = () => {
 		setGame(addRoundGame(game));
 	};
-
-	// const tmp = 0;
-	// if (round.status === 'BeforeInit') {
-	// 	round.status = 'InProgress';
-	// 	setRound(round);
-	// 	// addRound(getEmptyRound());
-	// }
 
 	useEffect(() => {
 		// if game has already been initialized, it means localstorage contained the game
@@ -154,6 +151,7 @@ const Play = () => {
 			round.status = 'InProgress';
 			round.phrase = 'updated phrase';
 			setGame(updateCurrentRoundGame(game, round));
+			// setRound(round);
 
 			// return;
 			// setRound(round);
@@ -163,16 +161,22 @@ const Play = () => {
 		// setRound(round);
 		// setGame(addRoundGame(game, round));
 
-		const listener = (e: KeyboardEvent) => {
-			e.preventDefault();
-			console.log('in listener');
-			isAlpha(e.key) && onLetterGuessed(e.key);
-		};
-		document.addEventListener('keydown', listener);
-		console.log('added keydown listener');
-		return () => {
-			document.removeEventListener('keydown', listener);
-		};
+		// const listener = (e: KeyboardEvent) => {
+		// 	// if (!isAlpha(e.key)) {
+		// 	// 	return;
+		// 	// }
+		// 	// e.preventDefault();
+		// 	// console.log('in listener (that is added on mount)');
+		// 	// onLetterGuessed(e.key);
+
+		// 	console.log('in listener (that is added on mount)');
+		// 	isAlpha(e.key) && onLetterGuessed(e.key);
+		// };
+		// document.addEventListener('keydown', listener);
+		// console.log('added keydown listener');
+		// return () => {
+		// 	document.removeEventListener('keydown', listener);
+		// };
 	}, []);
 
 	return (
