@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material';
+import { Grid, useTheme } from '@mui/material';
 import { FC } from 'react';
 
 import { BoardTile } from '../types/Board';
@@ -9,6 +9,8 @@ type Props = {
 
 // rename one of the Tiles to 'BoardTile' ?
 const Tile: FC<Props> = ({ tile }) => {
+	const theme = useTheme();
+
 	// empty/blank tile
 	if (tile.value === undefined) {
 		return (
@@ -18,7 +20,8 @@ const Tile: FC<Props> = ({ tile }) => {
 					fontSize: '1vw',
 					width: '3.2vw',
 					height: '3.2vw',
-					border: '1px solid blue'
+					borderRadius: '0.25rem',
+					border: `0.5px solid ${theme.palette.secondary.main}`
 				}}
 			/>
 		);
@@ -33,7 +36,8 @@ const Tile: FC<Props> = ({ tile }) => {
 					fontSize: '1vw',
 					width: '3.2vw',
 					height: '3.2vw',
-					border: '1px solid blue'
+					borderRadius: '0.25rem',
+					border: `0.5px solid ${theme.palette.secondary.main}`
 				}}
 			>
 				?
@@ -49,7 +53,8 @@ const Tile: FC<Props> = ({ tile }) => {
 				fontSize: '1vw',
 				width: '3.2vw',
 				height: '3.2vw',
-				border: '1px solid blue',
+				borderRadius: '0.25rem',
+				border: `0.5px solid ${theme.palette.secondary.main}`,
 				textAlign: 'center'
 			}}
 		>

@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Button, useTheme } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState, useEffect, useRef } from 'react';
 
@@ -12,6 +12,7 @@ type Props = {
 
 const KeyboardButton = ({ name, keyPressAction }: Props) => {
 	const { enqueueSnackbar } = useSnackbar();
+	const theme = useTheme();
 
 	const [disabled, setDisabled] = useState(false);
 	const inputRef = useRef<HTMLButtonElement | null>(null);
@@ -72,7 +73,9 @@ const KeyboardButton = ({ name, keyPressAction }: Props) => {
 				m: 1,
 				fontSize: '1.5vw',
 				width: '4.5vw',
-				height: '4.5vw'
+				height: '4.5vw',
+				color: theme.palette.primary.light,
+				borderColor: theme.palette.primary.light
 			}}
 		>
 			{name}
