@@ -4,7 +4,7 @@
 
 // export default Login;
 
-import { Button, Paper, TextField, Typography } from '@mui/material';
+import { Button, Paper, TextField, Typography, useTheme } from '@mui/material';
 import { Box } from '@mui/system';
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -18,6 +18,7 @@ const Login = () => {
 	// const translate = useTranslation();
 	usePageTitle('Login');
 	const navigate = useNavigate();
+	const theme = useTheme();
 
 	const [isSignUp, setSignUp] = useState(false);
 	const [isGoogleSignIn, setGoogleSignIn] = useState(false);
@@ -52,7 +53,8 @@ const Login = () => {
 				flexDirection: 'column',
 				width: '100%',
 				p: 4,
-				gap: 2
+				gap: 2,
+				background: theme.palette.backgroundLight
 			}}
 		>
 			<Typography variant="h4" component="h2" textAlign="center" mb={3}>

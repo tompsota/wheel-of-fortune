@@ -14,11 +14,13 @@ const Home = () => (
 			justifyContent: 'space-evenly'
 		}}
 	>
-		<Typography variant="h1" fontWeight="bold">
+		<Typography variant="h1" fontWeight="bold" fontSize="8vw">
 			Wheeling fortunate?
 		</Typography>
 		<br />
-		<Typography variant="subtitle1">Press the wheel to start</Typography>
+		<Typography variant="subtitle1" fontSize="1.5vw">
+			Press the wheel to start
+		</Typography>
 		<br />
 		<Box component={Link} to="/play">
 			<Box
@@ -26,12 +28,11 @@ const Home = () => (
 				src={wheel}
 				alt="game logo"
 				sx={{
-					maxWidth: '35rem',
+					maxWidth: '35vw',
 					width: '100%',
 					animation: 'rotation 25s infinite linear'
 				}}
 			/>
-			;
 		</Box>
 	</Stack>
 );

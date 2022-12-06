@@ -23,6 +23,7 @@ import { Settings } from '@mui/icons-material';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 
 import AppDrawerListItem from './AppDrawerListItem';
+import '../fonts.css';
 
 const drawerWidth = 240;
 
@@ -116,7 +117,20 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 	return (
 		<Box sx={{ display: 'flex' }}>
 			<CssBaseline />
-			<AppBar position="fixed" open={drawerOpen}>
+			<AppBar
+				position="fixed"
+				open={drawerOpen}
+				sx={{
+					background: `linear-gradient(
+				    90deg,
+        rgba(22, 17, 64, .5) 10%,
+        rgba(51, 9, 97, .5) 30%,
+        rgba(69, 11, 133, .5) 50%,
+				rgba(95, 21, 242, .5) 80%
+
+				)`
+				}}
+			>
 				<Toolbar>
 					<IconButton
 						color="inherit"
@@ -130,12 +144,34 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 					>
 						<AttractionsIcon />
 					</IconButton>
-					<Typography variant="h6" noWrap component="div">
+					<Typography
+						variant="h6"
+						noWrap
+						component="div"
+						fontFamily="Permanent Marker"
+						fontSize="2rem"
+					>
 						Wheel Of Fortune
 					</Typography>
 				</Toolbar>
 			</AppBar>
-			<Drawer variant="permanent" open={drawerOpen}>
+			<Drawer
+				variant="permanent"
+				open={drawerOpen}
+				PaperProps={{
+					sx: {
+						background: `linear-gradient(
+        180deg,
+        rgba(22, 17, 64, .5) 15%,
+        rgba(51, 9, 97, .5) 30%,
+        rgba(69, 11, 133, .5) 45%,
+        rgba(95, 21, 242, .5) 60%,
+        rgba(186, 12, 248, .5) 75%,
+        rgba(251, 7, 217, .5) 90%
+    )`
+					}
+				}}
+			>
 				<DrawerHeader>
 					<IconButton onClick={handleDrawerClose}>
 						<ChevronLeftIcon />
@@ -215,7 +251,15 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 					</List>
 				</Container>
 			</Drawer>
-			<Box component="main" sx={{ flexGrow: 1, height: '100vh' }}>
+			<Box
+				component="main"
+				sx={{
+					flexGrow: 1,
+					height: '100vh',
+					background:
+						'radial-gradient(circle, rgba(76, 45, 107, 1) 0%, rgba(29, 33, 55, 1) 100%)'
+				}}
+			>
 				<Box
 					sx={{
 						display: 'flex',
@@ -229,11 +273,17 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 					<Box
 						sx={{
 							display: 'flex',
-							background: 'grey',
 							flexDirection: 'row',
 							justifyContent: 'space-between',
 							py: 0.6,
-							px: 2.5
+							px: 2.5,
+							background: `linear-gradient(
+        90deg,
+        rgba(251, 7, 217, .5) 40%,
+        rgba(186, 12, 248, .5) 60%,
+        rgba(95, 21, 242, .5) 80%,
+        rgba(28, 127, 238, .5) 100%
+    )`
 						}}
 					>
 						<Typography>username</Typography>

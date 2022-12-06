@@ -1,5 +1,5 @@
 import { FC, useEffect } from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Stack, Typography, useTheme } from '@mui/material';
 
 // import useGame from '../hooks/useGame';
 
@@ -23,6 +23,7 @@ const Board: FC<Props> = ({ board }) => {
 	// }, []);
 
 	// const { board, phrase, onLetterGuessed } = useGame();
+	const theme = useTheme();
 
 	const boardRow = (row: BoardRow, i: number) => (
 		<Stack
@@ -52,7 +53,8 @@ const Board: FC<Props> = ({ board }) => {
 			<Typography>Your sentence:</Typography>
 			<Stack
 				sx={{
-					backgroundColor: 'rgba(255, 255, 255, .1)',
+					backgroundColor: theme.palette.backgroundLight,
+					borderRadius: '0.25rem',
 					padding: '1rem',
 					margin: '1rem'
 				}}
