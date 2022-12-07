@@ -53,9 +53,9 @@ const GameSettings: FC = () => {
 				onChange={onTimerChanged}
 				options={{
 					'no limit': 'unlimited',
+					'1 minute': '60',
 					'3 minutes': '180',
-					'5 minutes': '300',
-					'10 minutes': '600'
+					'5 minutes': '300'
 				}}
 			/>
 		</Box>

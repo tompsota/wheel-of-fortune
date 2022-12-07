@@ -21,8 +21,11 @@ import { Container } from '@mui/material';
 import { Settings } from '@mui/icons-material';
 
 import useLoggedInUser from '../hooks/useLoggedInUser';
+import useGame from '../hooks/useGameTest';
+import { getMultiplier, getScore } from '../utils/game';
 
 import AppDrawerListItem from './AppDrawerListItem';
+
 import '../fonts.css';
 
 const drawerWidth = 240;
@@ -113,6 +116,12 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 	};
 
 	const user = useLoggedInUser();
+	const game = useGame();
+	const scoreInfo = `Score: ${getScore(game)} (${getMultiplier(
+		game.settings
+	)}x)`;
+	const guessesLeft = game.rounds.at(-1)?.guessesLeft;
+	const timer = game.rounds.at(-1)?.timeLeftOnTimer;
 
 	return (
 		<Box sx={{ display: 'flex' }}>
@@ -286,9 +295,14 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
     )`
 						}}
 					>
-						<Typography>username</Typography>
-						<Typography>Level XX</Typography>
-						<Typography>points</Typography>
+						<Typography>{user?.displayName ?? 'Guest'}</Typography>
+						{timer && <Typography>{timer}s</Typography>}
+						<Typography>Level {game.rounds.length}</Typography>
+						{guessesLeft && (
+							<Typography>Guesses left: {guessesLeft}</Typography>
+						)}
+						{/* <Typography>Score: {getScore(game)}</Typography> */}
+						<Typography>{scoreInfo}</Typography>
 					</Box>
 				</Box>
 			</Box>
