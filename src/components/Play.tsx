@@ -1,8 +1,8 @@
 import { Button, Divider, Grid, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useSnackbar } from 'notistack';
-import { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import LetterGuessedResult from '../enums/LetterGuessedResult';
 import { useGameSettings } from '../hooks/useGameSettings';
@@ -40,66 +40,13 @@ const Play = () => {
 	const gameSettings = useGameSettings();
 	const user = useLoggedInUser();
 	const [game, setGame] = useGameContext();
-	// const [round, setRound] = useCurrentRound();
-
-	// const [round, setRound] = useState<GameRound>(
-	// 	game.rounds.at(-1) ?? getEmptyRound()
-	// );
 
 	const newGame = getEmptyGame();
-	// if (game === undefined) {
-	// 	// game = newGame;
-	// 	setGame(newGame);
-	// 	// return <Loading />;
-	// 	// replace with loading component
-	// 	// return <Typography>Loading...</Typography>;
-	// }
 
 	const round = game?.rounds.at(-1) ?? getEmptyRound();
-	// const round = game.rounds[0];
-
-	// const [refreshFlag, setRefreshFlag] = useState(false);
-
-	// useEffect(() => {
-	// 	console.log('game updated');
-	// 	setRound(game.rounds.at(-1) ?? getEmptyRound(game.rounds.length + 1));
-	// }, [game]);
 
 	// the issue is that when we load Play component, Round has its status set to 'InProgress'
 	// but when we start the next round, new empty round is added to
-
-	//
-	//
-	//
-	//
-	// useEffect(() => {
-	// 	// used when round changes status from 'BeforeInit' to 'InProgress' .. TODO: can be placed to 'game.rounds.length'
-	// 	// when it's umounted on change of round.status to 'Pass' or 'Fail', we remove listener and can't inform user
-	// 	//   he shouldn't keep clicking - but use button instead - should happen on round addition
-	// 	if (round.status === 'InProgress') {
-	// 		// if (true) {
-	// 		const listener = (e: KeyboardEvent) => {
-	// 			// const g_ = useGame();
-	// 			// const round_ = g_.rounds.at(-1) ?? getEmptyRound();
-	// 			console.log(
-	// 				`round.status: Play - using keydown listener: ${JSON.stringify(e)}`
-	// 			);
-	// 			// e.preventDefault();
-	// 			// console.log('on refresh - in listener');
-
-	// 			isAlpha(e.key) && onLetterGuessed(e.key);
-	// 		};
-	// 		document.addEventListener('keydown', listener);
-	// 		console.log('round.status: Play - added keydown listener');
-	// 		return () => {
-	// 			console.log('round.status: Play - remove keydown listener');
-	// 			document.removeEventListener('keydown', listener);
-	// 		};
-	// 	}
-	// }, [round.status]);
-	//
-	//
-	//
 
 	// for when a new round is added
 	// try again with just one listener added on mount, but try to solve why it wasn't working
@@ -140,7 +87,9 @@ const Play = () => {
 		// phrase doesn't contain such letter
 		if (!round.phrase.includes(letter)) {
 			// reduce number of guesses left
-			enqueueSnackbar(`Wrong letter, -${incorrectLetterPointValue} points!`);
+			enqueueSnackbar(`Wrong letter, -${incorrectLetterPointValue} points!`, {
+				variant: 'error'
+			});
 			round.score -= incorrectLetterPointValue;
 			if (round.guessesLeft) {
 				round.guessesLeft -= 1;
@@ -166,9 +115,10 @@ const Play = () => {
 		// letter is in phrase and wasn't guessed yet
 		round.board = getUpdatedBoard(round.board, letter);
 		round.score += correctLetterPointValue;
-		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`);
+		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`, {
+			variant: 'success'
+		});
 		setGame(updateCurrentRoundGame(game, round));
-		// console.dir(`updated round: ${JSON.stringify(round)}`);
 
 		if (isPhraseSolved(round.board)) {
 			console.log('phrase solved');
@@ -182,18 +132,6 @@ const Play = () => {
 		// return LetterGuessedResult.CorrectLetter;
 		return;
 	};
-
-	// >>> doesn't work properly, since it also doesn't allow to show 'Start new game / Submit score' screen
-	//   because once we set game.status to 'Finished', and load the Play component, this useEffect is triggered (on mount),
-	//   and therefore we always get 'navigated' to /game-over
-	//
-	// useEffect(() => {
-	// 	console.log(`game.status useEffect: ${game.status}`);
-	// 	// can be set via 'End game' button or due to losing (number of guessed / timer)
-	// 	if (game.status === 'Finished') {
-	// 		navigate('/game-over');
-	// 	}
-	// }, [game.status]);
 
 	// -----------------[ on new round added ]------------------
 	// get new phrase, create board for it, update status from 'BeforeInit' to 'InProgress'
@@ -216,15 +154,11 @@ const Play = () => {
 		})();
 
 		const listener = (e: KeyboardEvent) => {
-			// const g_ = useGame();
-			// const round_ = g_.rounds.at(-1) ?? getEmptyRound();
 			console.log(
 				`game.rounds.length: Play - using keydown listener: ${JSON.stringify(
 					e
 				)}`
 			);
-			// e.preventDefault();
-			// console.log('on refresh - in listener');
 
 			isAlpha(e.key) && onLetterGuessed(e.key);
 		};
@@ -274,7 +208,6 @@ const Play = () => {
 
 	useEffect(() => {
 		if (game === undefined) {
-			// game = newGame;
 			setGame(newGame);
 
 			// if wanna use async (and init phrase in GetEmptyRound)
@@ -315,16 +248,6 @@ const Play = () => {
 				<Stack sx={{ display: 'flex', height: '100%' }}>
 					<Divider />
 					<Keyboard />
-					<Button
-						sx={{ alignSelf: 'flex-end' }}
-						disabled={round.status !== 'Pass'}
-						onClick={onLoadNextRound}
-					>
-						Next level
-					</Button>
-					<Button sx={{ alignSelf: 'flex-end' }} onClick={onStartNewGame}>
-						Reset game
-					</Button>
 					<Button sx={{ alignSelf: 'flex-end' }} onClick={onEndGame}>
 						End game
 					</Button>

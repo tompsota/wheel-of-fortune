@@ -3,7 +3,6 @@ import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 
-import About from './components/About';
 import AppLayout from './components/AppLayout';
 import Home from './components/Home';
 import Leaderboard from './components/Leaderboard';
@@ -14,8 +13,8 @@ import Play from './components/Play';
 import { UserProvider } from './hooks/useLoggedInUser';
 import theme from './utils/theme';
 import { GameProvider } from './hooks/useGameTest';
-import GameSettings from './components/GameSettings';
 import { GameSettingsProvider } from './hooks/useGameSettings';
+import InfoSettings from './components/InfoSettings';
 
 const App = () => {
 	const _tmp = 0; //TODO zmazat, je to tu aby nepindal linter
@@ -41,10 +40,9 @@ const App = () => {
 										<Route path="/" element={<Home />} />
 										<Route path="/play" element={<Play />} />
 										<Route path="/leaderboard" element={<Leaderboard />} />
-										<Route path="/about" element={<About />} />
+										<Route path="/about" element={<InfoSettings />} />
 										<Route path="/login" element={<Login />} />
 										<Route path="/logout" element={<Logout />} />
-										<Route path="/settings" element={<GameSettings />} />
 										<Route path="*" element={<NotFound />} />
 									</Routes>
 								</AppLayout>

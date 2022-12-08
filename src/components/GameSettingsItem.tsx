@@ -1,39 +1,43 @@
-import {
-	FormControl,
-	InputLabel,
-	MenuItem,
-	Select,
-	SelectChangeEvent
-} from '@mui/material';
+import { Slider, Stack, Typography } from '@mui/material';
 import { FC } from 'react';
 
 // type Props<T> = {
 type Props = {
-	value: string;
+	value: number;
 	label: string;
-	options: Record<string, string>;
-	onChange: (event: SelectChangeEvent) => void;
+	options: {
+		value: number;
+		label: string;
+	}[];
+	onChange: (
+		event: Event,
+		value: number | number[],
+		activeThumb: number
+	) => void;
 };
 
-const GameSettingsItem: FC<Props> = ({ value, label, options, onChange }) => (
-	// const GameSettingsItem = <T,>({ value, label, options, onChange }: Props<T>) => (
+const GameSettingsItem: FC<Props> = ({ value, label, options, onChange }) => {
+	const valueLabelFormat = (value: number) =>
+		value === 0 ? 'Unlimited' : value;
 
-	<FormControl fullWidth>
-		<InputLabel id={label}>{label}</InputLabel>
-		<Select
-			labelId={label}
-			id={label}
-			value={value}
-			label={label}
-			onChange={onChange}
-		>
-			{Object.entries(options).map((option, i) => (
-				<MenuItem key={i} value={option[1]}>
-					{option[0]}
-				</MenuItem>
-			))}
-		</Select>
-	</FormControl>
-);
+	return (
+		<Stack sx={{ display: 'flex', padding: '2rem' }}>
+			<Typography>{label}</Typography>
+			<Slider
+				defaultValue={value}
+				max={10}
+				valueLabelFormat={valueLabelFormat}
+				step={null}
+				valueLabelDisplay="auto"
+				marks={options}
+				onChange={onChange}
+				sx={{
+					margin: '2rem',
+					width: 'unset'
+				}}
+			/>
+		</Stack>
+	);
+};
 
 export default GameSettingsItem;
