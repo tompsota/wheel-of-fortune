@@ -117,11 +117,18 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 
 	const user = useLoggedInUser();
 	const game = useGame();
-	const scoreInfo = `Score: ${getScore(game)} (${getMultiplier(
-		game.settings
-	)}x)`;
-	const guessesLeft = game.rounds.at(-1)?.guessesLeft;
-	const timer = game.rounds.at(-1)?.timeLeftOnTimer;
+
+	let scoreInfo;
+	let guessesLeft;
+	let timer;
+
+	if (game !== undefined) {
+		scoreInfo = `Score: ${getScore(game)} (${getMultiplier(game.settings)}x)`;
+		guessesLeft = game.rounds.at(-1)?.guessesLeft;
+		timer = game.rounds.at(-1)?.timeLeftOnTimer;
+	}
+
+	const displayInfo = game && game.status !== 'Finished';
 
 	return (
 		<Box sx={{ display: 'flex' }}>
@@ -296,13 +303,13 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 						}}
 					>
 						<Typography>{user?.displayName ?? 'Guest'}</Typography>
-						{timer && <Typography>{timer}s</Typography>}
-						<Typography>Level {game.rounds.length}</Typography>
-						{guessesLeft && (
+						{displayInfo && timer && <Typography>{timer}s</Typography>}
+						{displayInfo && <Typography>Level {game.rounds.length}</Typography>}
+						{displayInfo && guessesLeft && (
 							<Typography>Guesses left: {guessesLeft}</Typography>
 						)}
 						{/* <Typography>Score: {getScore(game)}</Typography> */}
-						<Typography>{scoreInfo}</Typography>
+						{displayInfo && <Typography>{scoreInfo}</Typography>}
 					</Box>
 				</Box>
 			</Box>

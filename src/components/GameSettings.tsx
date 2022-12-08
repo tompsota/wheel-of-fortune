@@ -1,4 +1,5 @@
 import { Box, SelectChangeEvent } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { FC } from 'react';
 
 import { useGameSettingsContext } from '../hooks/useGameSettings';
@@ -7,6 +8,7 @@ import GameSettingsItem from './GameSettingsItem';
 
 const GameSettings: FC = () => {
 	const [gameSettings, setGameSettings] = useGameSettingsContext();
+	const { enqueueSnackbar } = useSnackbar();
 
 	const onNumberOfGuessesChanged = (event: SelectChangeEvent) => {
 		const value = event.target.value as string;
@@ -15,6 +17,7 @@ const GameSettings: FC = () => {
 				? undefined
 				: parseInt(event.target.value as string);
 		setGameSettings({ ...gameSettings, numberOfGuesses });
+		enqueueSnackbar("Updated settings won't be applied to the current game.");
 	};
 
 	const onTimerChanged = (event: SelectChangeEvent) => {
@@ -24,6 +27,7 @@ const GameSettings: FC = () => {
 				? undefined
 				: parseInt(event.target.value as string);
 		setGameSettings({ ...gameSettings, timer });
+		enqueueSnackbar("Updated settings won't be applied to the current game.");
 	};
 
 	return (

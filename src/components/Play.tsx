@@ -7,11 +7,8 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import LetterGuessedResult from '../enums/LetterGuessedResult';
 import { useGameSettings } from '../hooks/useGameSettings';
 import useGame, {
-	addRound,
 	addRoundGame,
-	getCurrentRound,
 	updateCurrentRoundGame,
-	useCurrentRound,
 	useGameContext
 } from '../hooks/useGameTest';
 import useLoggedInUser from '../hooks/useLoggedInUser';
@@ -45,15 +42,16 @@ const Play = () => {
 	// 	game.rounds.at(-1) ?? getEmptyRound()
 	// );
 
-	// const newGame = getEmptyGame();
+	const newGame = getEmptyGame();
 	// if (game === undefined) {
+	// 	// game = newGame;
 	// 	setGame(newGame);
 	// 	// return <Loading />;
 	// 	// replace with loading component
-	// 	return <Typography>Loading...</Typography>;
+	// 	// return <Typography>Loading...</Typography>;
 	// }
 
-	const round = game.rounds.at(-1) ?? getEmptyRound();
+	const round = game?.rounds.at(-1) ?? getEmptyRound();
 	// const round = game.rounds[0];
 
 	// const [refreshFlag, setRefreshFlag] = useState(false);
@@ -107,12 +105,17 @@ const Play = () => {
 	// should get triggered when game gets updated, i.e. when we set new round (this round has a different round number)
 	// useEffect(() => {}, [round.roundNumber]);
 
-	const onLetterGuessed = (letter: string): LetterGuessedResult => {
+	const onLetterGuessed = (letter: string) => {
+		if (game === undefined) {
+			return;
+		}
+
 		if (round.status === 'Pass') {
 			enqueueSnackbar(
 				"You have already solved this phrase, use 'Next level' when ready to proceed to the next one!"
 			);
-			return LetterGuessedResult.PhraseSolved;
+			return;
+			// return LetterGuessedResult.PhraseSolved;
 		}
 
 		console.log(`letter ${letter} guessed`);
@@ -122,7 +125,8 @@ const Play = () => {
 			console.log('already guessed');
 			enqueueSnackbar(`You've already guessed letter ${letter}`);
 			// snackbar with info ?
-			return LetterGuessedResult.AlreadyGuessedLetter;
+			// return LetterGuessedResult.AlreadyGuessedLetter;
+			return;
 		}
 
 		// could be placed higher/outside function
@@ -150,7 +154,8 @@ const Play = () => {
 			// if there is number of guesses set, decrease number and if equals to 0,
 			// set status to 'fail' and navigate to 'game over'
 			setGame(updateCurrentRoundGame(game, round));
-			return LetterGuessedResult.IncorrectLetter;
+			// return LetterGuessedResult.IncorrectLetter;
+			return;
 		}
 
 		// letter is in phrase and wasn't guessed yet
@@ -168,7 +173,8 @@ const Play = () => {
 		}
 
 		setGame(updateCurrentRoundGame(game, round));
-		return LetterGuessedResult.CorrectLetter;
+		// return LetterGuessedResult.CorrectLetter;
+		return;
 	};
 
 	// >>> doesn't work properly, since it also doesn't allow to show 'Start new game / Submit score' screen
@@ -187,8 +193,11 @@ const Play = () => {
 	// get new phrase, create board for it, update status from 'BeforeInit' to 'InProgress'
 	// also runs once on mount (?), which means we set the very first round as well
 	useEffect(() => {
+		if (game === undefined) {
+			return;
+		}
 		console.log(
-			`game.rounds.length useEffect trigged at value: ${game.rounds.length}`
+			`game.rounds.length useEffect trigged at value: ${game?.rounds.length}`
 		);
 		(async () => {
 			round.phrase = await getPhrase();
@@ -216,11 +225,13 @@ const Play = () => {
 			console.log('game.rounds.length: Play - remove keydown listener');
 			document.removeEventListener('keydown', listener);
 		};
-	}, [game.rounds.length]);
+	}, [game?.rounds.length]);
 
 	// executed upon pressing 'Next level' button => creates a new empty round
 	const onLoadNextRound = () => {
-		setGame(addRoundGame(game));
+		if (game !== undefined) {
+			setGame(addRoundGame(game));
+		}
 	};
 
 	const onStartNewGame = () => {
@@ -229,6 +240,9 @@ const Play = () => {
 	const _onResetGame = onStartNewGame;
 
 	const onEndGame = () => {
+		if (game === undefined) {
+			return;
+		}
 		console.log(`pressed onEndGame: ${game.status}`);
 		game.status = 'Finished';
 		setGame(game);
@@ -240,6 +254,14 @@ const Play = () => {
 	// in the useEffect, if game.status === 'Finished', navigate to /game-over
 
 	useEffect(() => {
+		if (game === undefined) {
+			// game = newGame;
+			setGame(newGame);
+			// return <Loading />;
+			// replace with loading component
+			// return <Typography>Loading...</Typography>;
+		}
+
 		// if game has already been initialized, it means localstorage contained the game
 		// if (game.status !== 'BeforeInit') {
 		// 	return;
