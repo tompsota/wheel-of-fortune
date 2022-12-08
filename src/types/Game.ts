@@ -7,7 +7,7 @@ import GameSettings from './GameSettings';
 type Game = {
 	// id: string;
 	playerId: User['uid'];
-	status: 'Finished' | 'Paused' | 'BeforeInit' | 'InProgress';
+	status: 'Finished' | 'Saved' | 'InProgress';
 	score: number;
 	rounds: GameRound[];
 	settings: GameSettings;

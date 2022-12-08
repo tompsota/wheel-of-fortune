@@ -11,9 +11,9 @@ import {
 
 import Game from '../types/Game';
 import GameRound from '../types/GameRound';
-import { getEmptyGame, getEmptyRound } from '../utils/game';
+import { getEmptyGame, getEmptyRound, getEmptyRoundAsync } from '../utils/game';
 
-type GameState = [Game, Dispatch<SetStateAction<Game>>];
+type GameState = [Game | undefined, Dispatch<SetStateAction<Game | undefined>>];
 const GameContext = createContext<GameState>(undefined as never);
 
 // Wrapped context provider
@@ -22,10 +22,10 @@ export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 	// We load (paused) game from local storage, or create a new game
 	const game =
 		localStorageGameString === null
-			? getEmptyGame()
+			? undefined
 			: (JSON.parse(localStorageGameString) as Game);
 
-	const gameState = useState<Game>(game);
+	const gameState = useState<Game | undefined>(game);
 
 	useEffect(() => {
 		// if something should be done once upon mounting GameProvider component
@@ -36,17 +36,15 @@ export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 	);
 };
 
-const getGame = () => {
-	const [game, _] = useContext(GameContext);
-	return game;
-};
-
 export const useGame = () => {
 	const [game, _] = useContext(GameContext);
 	return game;
 };
 
-export const useGameContext = (): [Game, Dispatch<SetStateAction<Game>>] => {
+export const useGameContext = (): [
+	Game | undefined,
+	Dispatch<SetStateAction<Game | undefined>>
+] => {
 	const [game, setGame] = useContext(GameContext);
 	return [game, setGame];
 };
@@ -71,32 +69,46 @@ export const useGameContext = (): [Game, Dispatch<SetStateAction<Game>>] => {
 // 	setGame({ ...game, phrase });
 // };
 
-const setRounds = (rounds: GameRound[]) => {
-	const [game, setGame] = useContext(GameContext);
-	setGame({ ...game, rounds });
-};
+// const setRounds = (rounds: GameRound[]) => {
+// 	const [game, setGame] = useContext(GameContext);
+// 	if (game !== undefined) {
+// 		setGame({ ...game, rounds });
+// 	}
+// };
 
-export const setCurrentRound = (round: GameRound) => {
-	const [game, setGame] = useContext(GameContext);
-	setGame({ ...game, rounds: [...game.rounds.slice(0, -1), round] });
-};
+// export const setCurrentRound = (round: GameRound) => {
+// 	const [game, setGame] = useContext(GameContext);
+// 	setGame({ ...game, rounds: [...game.rounds.slice(0, -1), round] });
+// };
 
-export const getCurrentRound = (): GameRound =>
-	getGame().rounds.at(-1) ?? getEmptyRound();
+// export const getCurrentRound = (): GameRound =>
+// 	getGame().rounds.at(-1) ?? getEmptyRound();
 
-export const useCurrentRound = (): [GameRound, (round: GameRound) => void] => [
-	getCurrentRound(),
-	setCurrentRound
-];
+// export const useCurrentRound = (): [GameRound, (round: GameRound) => void] => [
+// 	getCurrentRound(),
+// 	setCurrentRound
+// ];
 
-export const addRound = (round: GameRound) => {
-	const game = useGame();
-	setRounds([...game.rounds, round]);
-};
+// export const addRound = (round: GameRound) => {
+// 	const game = useGame();
+// 	setRounds([...game.rounds, round]);
+// };
 
 export const addRoundGame = (game: Game, round?: GameRound): Game => {
 	const newRound =
 		round ?? getEmptyRound(game.rounds.length + 1, game.settings);
+	return {
+		...game,
+		rounds: [...game.rounds, newRound]
+	};
+};
+
+export const addRoundGameAsync = async (
+	game: Game,
+	round?: GameRound
+): Promise<Game> => {
+	const newRound =
+		round ?? (await getEmptyRoundAsync(game.rounds.length + 1, game.settings));
 	return {
 		...game,
 		rounds: [...game.rounds, newRound]

@@ -1,24 +1,33 @@
-import { Button, Divider, Grid } from '@mui/material';
+import { Button, Divider, Grid, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import LetterGuessedResult from '../enums/LetterGuessedResult';
+import { useGameSettings } from '../hooks/useGameSettings';
 import useGame, {
-	addRound,
 	addRoundGame,
-	getCurrentRound,
+	addRoundGameAsync,
 	updateCurrentRoundGame,
-	useCurrentRound,
 	useGameContext
 } from '../hooks/useGameTest';
+import useLoggedInUser from '../hooks/useLoggedInUser';
+import Game from '../types/Game';
 import GameRound from '../types/GameRound';
 import {
+	createBoard,
+	getEmptyGame,
+	getEmptyGameAsync,
+	getEmptyGameFrom,
+	getEmptyGameFromAsync,
 	getEmptyRound,
+	getMultiplier,
+	getPhrase,
 	getUpdatedBoard,
 	isAlpha,
-	isPhraseSolved
+	isPhraseSolved,
+	saveGame
 } from '../utils/game';
 
 import Board from './Board';
@@ -28,6 +37,8 @@ const Play = () => {
 	const { enqueueSnackbar } = useSnackbar();
 	const navigate = useNavigate();
 
+	const gameSettings = useGameSettings();
+	const user = useLoggedInUser();
 	const [game, setGame] = useGameContext();
 	// const [round, setRound] = useCurrentRound();
 
@@ -35,7 +46,17 @@ const Play = () => {
 	// 	game.rounds.at(-1) ?? getEmptyRound()
 	// );
 
-	const round = game.rounds.at(-1) ?? getEmptyRound();
+	const newGame = getEmptyGame();
+	// if (game === undefined) {
+	// 	// game = newGame;
+	// 	setGame(newGame);
+	// 	// return <Loading />;
+	// 	// replace with loading component
+	// 	// return <Typography>Loading...</Typography>;
+	// }
+
+	const round = game?.rounds.at(-1) ?? getEmptyRound();
+	// const round = game.rounds[0];
 
 	// const [refreshFlag, setRefreshFlag] = useState(false);
 
@@ -46,25 +67,39 @@ const Play = () => {
 
 	// the issue is that when we load Play component, Round has its status set to 'InProgress'
 	// but when we start the next round, new empty round is added to
-	useEffect(() => {
-		if (round.status === 'InProgress' || round.status === 'BeforeInit') {
-			// if (true) {
-			const listener = (e: KeyboardEvent) => {
-				console.log(
-					`keydown listener - Play - on refresh: ${JSON.stringify(e)}`
-				);
-				// e.preventDefault();
-				// console.log('on refresh - in listener');
 
-				isAlpha(e.key) && onLetterGuessed(e.key);
-			};
-			document.addEventListener('keydown', listener);
-			console.log('on refresh - added keydown listener');
-			return () => {
-				document.removeEventListener('keydown', listener);
-			};
-		}
-	}, [round.status]);
+	//
+	//
+	//
+	//
+	// useEffect(() => {
+	// 	// used when round changes status from 'BeforeInit' to 'InProgress' .. TODO: can be placed to 'game.rounds.length'
+	// 	// when it's umounted on change of round.status to 'Pass' or 'Fail', we remove listener and can't inform user
+	// 	//   he shouldn't keep clicking - but use button instead - should happen on round addition
+	// 	if (round.status === 'InProgress') {
+	// 		// if (true) {
+	// 		const listener = (e: KeyboardEvent) => {
+	// 			// const g_ = useGame();
+	// 			// const round_ = g_.rounds.at(-1) ?? getEmptyRound();
+	// 			console.log(
+	// 				`round.status: Play - using keydown listener: ${JSON.stringify(e)}`
+	// 			);
+	// 			// e.preventDefault();
+	// 			// console.log('on refresh - in listener');
+
+	// 			isAlpha(e.key) && onLetterGuessed(e.key);
+	// 		};
+	// 		document.addEventListener('keydown', listener);
+	// 		console.log('round.status: Play - added keydown listener');
+	// 		return () => {
+	// 			console.log('round.status: Play - remove keydown listener');
+	// 			document.removeEventListener('keydown', listener);
+	// 		};
+	// 	}
+	// }, [round.status]);
+	//
+	//
+	//
 
 	// for when a new round is added
 	// try again with just one listener added on mount, but try to solve why it wasn't working
@@ -74,12 +109,17 @@ const Play = () => {
 	// should get triggered when game gets updated, i.e. when we set new round (this round has a different round number)
 	// useEffect(() => {}, [round.roundNumber]);
 
-	const onLetterGuessed = (letter: string): LetterGuessedResult => {
+	const onLetterGuessed = (letter: string) => {
+		if (game === undefined) {
+			return;
+		}
+
 		if (round.status === 'Pass') {
 			enqueueSnackbar(
 				"You have already solved this phrase, use 'Next level' when ready to proceed to the next one!"
 			);
-			return LetterGuessedResult.PhraseSolved;
+			return;
+			// return LetterGuessedResult.PhraseSolved;
 		}
 
 		console.log(`letter ${letter} guessed`);
@@ -89,14 +129,19 @@ const Play = () => {
 			console.log('already guessed');
 			enqueueSnackbar(`You've already guessed letter ${letter}`);
 			// snackbar with info ?
-			return LetterGuessedResult.AlreadyGuessedLetter;
+			// return LetterGuessedResult.AlreadyGuessedLetter;
+			return;
 		}
 
+		// could be placed higher/outside function
+		const incorrectLetterPointValue = 20;
+		const correctLetterPointValue = 20 * getMultiplier(gameSettings);
 		round.guessedLetters.push(letter);
 		// phrase doesn't contain such letter
 		if (!round.phrase.includes(letter)) {
 			// reduce number of guesses left
-			round.score -= 20;
+			enqueueSnackbar(`Wrong letter, -${incorrectLetterPointValue} points!`);
+			round.score -= incorrectLetterPointValue;
 			if (round.guessesLeft) {
 				round.guessesLeft -= 1;
 			}
@@ -104,6 +149,7 @@ const Play = () => {
 			// TODO: or if timer reaches zero
 			if (round.guessesLeft === 0) {
 				round.status = 'Fail';
+				game.status = 'Finished';
 				setGame(updateCurrentRoundGame(game, round));
 				// should probably save game immediately? or set game.status to finished,
 				// and only wait for player to submit the score on the 'game over' screen?
@@ -113,72 +159,153 @@ const Play = () => {
 			// if there is number of guesses set, decrease number and if equals to 0,
 			// set status to 'fail' and navigate to 'game over'
 			setGame(updateCurrentRoundGame(game, round));
-			enqueueSnackbar(`Letter ${letter} is not in the phrase`);
-			console.log('incorrect guess');
-			return LetterGuessedResult.IncorrectLetter;
+			// return LetterGuessedResult.IncorrectLetter;
+			return;
 		}
 
 		// letter is in phrase and wasn't guessed yet
 		round.board = getUpdatedBoard(round.board, letter);
-		round.score += 20;
+		round.score += correctLetterPointValue;
+		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`);
 		setGame(updateCurrentRoundGame(game, round));
-		console.dir(`updated round: ${JSON.stringify(round)}`);
+		// console.dir(`updated round: ${JSON.stringify(round)}`);
 
 		if (isPhraseSolved(round.board)) {
 			console.log('phrase solved');
 			round.status = 'Pass';
 			enqueueSnackbar('You have successfully solved the phrase!');
+			saveGame(game);
 			// update round state, set times etc.
 		}
 
 		setGame(updateCurrentRoundGame(game, round));
-		return LetterGuessedResult.CorrectLetter;
+		// return LetterGuessedResult.CorrectLetter;
+		return;
 	};
+
+	// >>> doesn't work properly, since it also doesn't allow to show 'Start new game / Submit score' screen
+	//   because once we set game.status to 'Finished', and load the Play component, this useEffect is triggered (on mount),
+	//   and therefore we always get 'navigated' to /game-over
+	//
+	// useEffect(() => {
+	// 	console.log(`game.status useEffect: ${game.status}`);
+	// 	// can be set via 'End game' button or due to losing (number of guessed / timer)
+	// 	if (game.status === 'Finished') {
+	// 		navigate('/game-over');
+	// 	}
+	// }, [game.status]);
+
+	// -----------------[ on new round added ]------------------
+	// get new phrase, create board for it, update status from 'BeforeInit' to 'InProgress'
+	// also runs once on mount (?), which means we set the very first round as well
+	useEffect(() => {
+		if (game === undefined) {
+			return;
+		}
+		console.log(
+			`game.rounds.length useEffect trigged at value: ${game?.rounds.length}`
+		);
+
+		// TODO: remove completely if phrase is set in getEmptyRound (also 'BeforeInit' would be then useless?)
+		//  ... actually it might be useless even now?
+		(async () => {
+			round.phrase = await getPhrase();
+			round.board = createBoard(round.phrase);
+			round.status = 'InProgress';
+			setGame(updateCurrentRoundGame(game, round));
+		})();
+
+		const listener = (e: KeyboardEvent) => {
+			// const g_ = useGame();
+			// const round_ = g_.rounds.at(-1) ?? getEmptyRound();
+			console.log(
+				`game.rounds.length: Play - using keydown listener: ${JSON.stringify(
+					e
+				)}`
+			);
+			// e.preventDefault();
+			// console.log('on refresh - in listener');
+
+			isAlpha(e.key) && onLetterGuessed(e.key);
+		};
+		document.addEventListener('keydown', listener);
+		console.log('game.rounds.length: Play - added keydown listener');
+		return () => {
+			console.log('game.rounds.length: Play - remove keydown listener');
+			document.removeEventListener('keydown', listener);
+		};
+	}, [game?.rounds.length]);
 
 	// executed upon pressing 'Next level' button => creates a new empty round
 	const onLoadNextRound = () => {
-		setGame(addRoundGame(game));
+		if (game !== undefined) {
+			setGame(addRoundGame(game));
+		}
 	};
 
+	const onLoadNextRoundAsync = async () => {
+		if (game !== undefined) {
+			setGame(await addRoundGameAsync(game));
+		}
+	};
+
+	const onStartNewGameAsync = async () => {
+		setGame(await getEmptyGameFromAsync(user, gameSettings));
+	};
+
+	const onStartNewGame = () => {
+		setGame(getEmptyGameFrom(user, gameSettings));
+	};
+	const _onResetGame = onStartNewGame;
+
+	const onEndGame = () => {
+		if (game === undefined) {
+			return;
+		}
+		console.log(`pressed onEndGame: ${game.status}`);
+		game.status = 'Finished';
+		setGame(game);
+		navigate('/game-over');
+	};
+
+	// could add useEffect for game.status, so that we can add 'End game' button,
+	//   which sets game.status to 'Finished'
+	// in the useEffect, if game.status === 'Finished', navigate to /game-over
+
 	useEffect(() => {
-		// if game has already been initialized, it means localstorage contained the game
-		// if (game.status !== 'BeforeInit') {
-		// 	return;
-		// }
-		// addRound(getEmptyRound());
+		if (game === undefined) {
+			// game = newGame;
+			setGame(newGame);
 
-		if (round.status === 'BeforeInit') {
-			round.status = 'InProgress';
-			round.phrase = 'updated phrase';
-			setGame(updateCurrentRoundGame(game, round));
-			// setRound(round);
+			// if wanna use async (and init phrase in GetEmptyRound)
+			// (async () => {
+			// 	const newgam = await getEmptyGameFromAsync(user, gameSettings);
+			// 	setGame(newgam);
+			// })();
+		} else if (game.status === 'Saved') {
+			setGame(addRoundGame(game));
 
-			// return;
-			// setRound(round);
-			// addRound(getEmptyRound());
+			// (async () => {
+			// 	setGame(await addRoundGameAsync(game));
+			// })();
 		}
 
-		// setRound(round);
-		// setGame(addRoundGame(game, round));
-
-		// const listener = (e: KeyboardEvent) => {
-		// 	// if (!isAlpha(e.key)) {
-		// 	// 	return;
-		// 	// }
-		// 	// e.preventDefault();
-		// 	// console.log('in listener (that is added on mount)');
-		// 	// onLetterGuessed(e.key);
-
-		// 	console.log('in listener (that is added on mount)');
-		// 	isAlpha(e.key) && onLetterGuessed(e.key);
-		// };
-		// document.addEventListener('keydown', listener);
-		// console.log('added keydown listener');
 		// return () => {
-		// 	document.removeEventListener('keydown', listener);
+		// 	saveGame(game);
 		// };
 	}, []);
 
+	// if game.status === 'Finished', we could display 2 buttons:
+	//  - maybe a title saying 'Your last game is finished, but score is not saved yet'
+	//  - Submit score
+	//  - Start a new game
+	// if game.status === 'InProgress', display the game with board itself
+	// if game.status === 'Paused', we could display two buttons:
+	//  - 'Start a new game',
+	//  - Continue game
+	//  - not sure if state will be restored kinda automatically (i.e. not too much work),
+	//    if it's way too difficult, then fuck 'Pause' functionality in general
+	//
 	return (
 		<Grid container direction="column" sx={{ display: 'flex', height: '100%' }}>
 			<Grid item xs={6}>
@@ -194,6 +321,12 @@ const Play = () => {
 						onClick={onLoadNextRound}
 					>
 						Next level
+					</Button>
+					<Button sx={{ alignSelf: 'flex-end' }} onClick={onStartNewGame}>
+						Reset game
+					</Button>
+					<Button sx={{ alignSelf: 'flex-end' }} onClick={onEndGame}>
+						End game
 					</Button>
 				</Stack>
 			</Grid>

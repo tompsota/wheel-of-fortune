@@ -18,9 +18,10 @@ const KeyboardButton = ({ name, keyPressAction }: Props) => {
 	const inputRef = useRef<HTMLButtonElement | null>(null);
 
 	const game = useGame();
+
 	useEffect(() => {
 		setDisabled(false);
-	}, [game.rounds.length]);
+	}, [game?.rounds.length]);
 
 	// ideally don't want to add a new event listener for all keys?
 	// could add a single event listener in Keyboard.tsx mount,
