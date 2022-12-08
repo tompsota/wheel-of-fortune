@@ -26,7 +26,8 @@ import {
 	getPhrase,
 	getUpdatedBoard,
 	isAlpha,
-	isPhraseSolved
+	isPhraseSolved,
+	saveGame
 } from '../utils/game';
 
 import Board from './Board';
@@ -173,6 +174,7 @@ const Play = () => {
 			console.log('phrase solved');
 			round.status = 'Pass';
 			enqueueSnackbar('You have successfully solved the phrase!');
+			saveGame(game);
 			// update round state, set times etc.
 		}
 
@@ -280,7 +282,17 @@ const Play = () => {
 			// 	const newgam = await getEmptyGameFromAsync(user, gameSettings);
 			// 	setGame(newgam);
 			// })();
+		} else if (game.status === 'Saved') {
+			setGame(addRoundGame(game));
+
+			// (async () => {
+			// 	setGame(await addRoundGameAsync(game));
+			// })();
 		}
+
+		// return () => {
+		// 	saveGame(game);
+		// };
 	}, []);
 
 	// if game.status === 'Finished', we could display 2 buttons:

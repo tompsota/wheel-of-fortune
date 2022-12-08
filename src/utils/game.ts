@@ -178,3 +178,10 @@ const getTimerMultiplier = (timer: number | undefined): number => {
 			return 1;
 	}
 };
+
+export const saveGame = (game: Game) => {
+	const originalStatus = game.status;
+	game.status = 'Saved';
+	localStorage.setItem('game', JSON.stringify(game));
+	game.status = originalStatus;
+};
