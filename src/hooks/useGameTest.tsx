@@ -11,7 +11,7 @@ import {
 
 import Game from '../types/Game';
 import GameRound from '../types/GameRound';
-import { getEmptyGame, getEmptyRound } from '../utils/game';
+import { getEmptyGame, getEmptyRound, getEmptyRoundAsync } from '../utils/game';
 
 type GameState = [Game | undefined, Dispatch<SetStateAction<Game | undefined>>];
 const GameContext = createContext<GameState>(undefined as never);
@@ -97,6 +97,18 @@ export const useGameContext = (): [
 export const addRoundGame = (game: Game, round?: GameRound): Game => {
 	const newRound =
 		round ?? getEmptyRound(game.rounds.length + 1, game.settings);
+	return {
+		...game,
+		rounds: [...game.rounds, newRound]
+	};
+};
+
+export const addRoundGameAsync = async (
+	game: Game,
+	round?: GameRound
+): Promise<Game> => {
+	const newRound =
+		round ?? (await getEmptyRoundAsync(game.rounds.length + 1, game.settings));
 	return {
 		...game,
 		rounds: [...game.rounds, newRound]

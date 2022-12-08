@@ -36,10 +36,33 @@ export const getEmptyRound = (
 	};
 };
 
+export const getEmptyRoundAsync = async (
+	roundNumber = 1,
+	settings?: GameSettings
+): Promise<GameRound> => {
+	const phrase = await getPhrase();
+	return {
+		board: createBoard(phrase),
+		status: 'BeforeInit',
+		roundNumber,
+		guessedLetters: [],
+		score: 0,
+		phrase,
+		guessesLeft: settings?.numberOfGuesses,
+		timeLeftOnTimer: settings?.timer
+	};
+};
+
 export const getEmptyGame = (): Game => {
 	const user = useLoggedInUser();
 	const settings = useGameSettings();
 	return getEmptyGameFrom(user, settings);
+};
+
+export const getEmptyGameAsync = async (): Promise<Game> => {
+	const user = useLoggedInUser();
+	const settings = useGameSettings();
+	return getEmptyGameFromAsync(user, settings);
 };
 
 export const getEmptyGameFrom = (
@@ -51,6 +74,18 @@ export const getEmptyGameFrom = (
 	status: 'InProgress',
 	score: 0,
 	rounds: [getEmptyRound(1, settings)],
+	settings
+});
+
+export const getEmptyGameFromAsync = async (
+	user: User | undefined,
+	settings: GameSettings
+): Promise<Game> => ({
+	// id: '',
+	playerId: user?.uid ?? '',
+	status: 'InProgress',
+	score: 0,
+	rounds: [await getEmptyRoundAsync(1, settings)],
 	settings
 });
 

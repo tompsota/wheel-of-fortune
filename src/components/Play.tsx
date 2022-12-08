@@ -8,6 +8,7 @@ import LetterGuessedResult from '../enums/LetterGuessedResult';
 import { useGameSettings } from '../hooks/useGameSettings';
 import useGame, {
 	addRoundGame,
+	addRoundGameAsync,
 	updateCurrentRoundGame,
 	useGameContext
 } from '../hooks/useGameTest';
@@ -17,7 +18,9 @@ import GameRound from '../types/GameRound';
 import {
 	createBoard,
 	getEmptyGame,
+	getEmptyGameAsync,
 	getEmptyGameFrom,
+	getEmptyGameFromAsync,
 	getEmptyRound,
 	getMultiplier,
 	getPhrase,
@@ -130,13 +133,14 @@ const Play = () => {
 		}
 
 		// could be placed higher/outside function
-		const letterPointValue = 20 * getMultiplier(gameSettings);
+		const incorrectLetterPointValue = 20;
+		const correctLetterPointValue = 20 * getMultiplier(gameSettings);
 		round.guessedLetters.push(letter);
 		// phrase doesn't contain such letter
 		if (!round.phrase.includes(letter)) {
 			// reduce number of guesses left
-			enqueueSnackbar(`Wrong letter, -${letterPointValue} points!`);
-			round.score -= 20;
+			enqueueSnackbar(`Wrong letter, -${incorrectLetterPointValue} points!`);
+			round.score -= incorrectLetterPointValue;
 			if (round.guessesLeft) {
 				round.guessesLeft -= 1;
 			}
@@ -160,8 +164,8 @@ const Play = () => {
 
 		// letter is in phrase and wasn't guessed yet
 		round.board = getUpdatedBoard(round.board, letter);
-		round.score += 20;
-		enqueueSnackbar(`Correct letter, +${letterPointValue} points!`);
+		round.score += correctLetterPointValue;
+		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`);
 		setGame(updateCurrentRoundGame(game, round));
 		// console.dir(`updated round: ${JSON.stringify(round)}`);
 
@@ -199,6 +203,9 @@ const Play = () => {
 		console.log(
 			`game.rounds.length useEffect trigged at value: ${game?.rounds.length}`
 		);
+
+		// TODO: remove completely if phrase is set in getEmptyRound (also 'BeforeInit' would be then useless?)
+		//  ... actually it might be useless even now?
 		(async () => {
 			round.phrase = await getPhrase();
 			round.board = createBoard(round.phrase);
@@ -234,6 +241,16 @@ const Play = () => {
 		}
 	};
 
+	const onLoadNextRoundAsync = async () => {
+		if (game !== undefined) {
+			setGame(await addRoundGameAsync(game));
+		}
+	};
+
+	const onStartNewGameAsync = async () => {
+		setGame(await getEmptyGameFromAsync(user, gameSettings));
+	};
+
 	const onStartNewGame = () => {
 		setGame(getEmptyGameFrom(user, gameSettings));
 	};
@@ -257,44 +274,13 @@ const Play = () => {
 		if (game === undefined) {
 			// game = newGame;
 			setGame(newGame);
-			// return <Loading />;
-			// replace with loading component
-			// return <Typography>Loading...</Typography>;
-		}
 
-		// if game has already been initialized, it means localstorage contained the game
-		// if (game.status !== 'BeforeInit') {
-		// 	return;
-		// }
-		// addRound(getEmptyRound());
-		// const emptyGame = getEmptyGame();
-		// if (game === undefined) {
-		// 	setGame(emptyGame);
-		// }
-		// if (round.status === 'BeforeInit') {
-		// 	round.status = 'InProgress';
-		// 	round.phrase = 'updated phrase';
-		// 	setGame(updateCurrentRoundGame(game, round));
-		// 	// setRound(round);
-		// 	// return;
-		// 	// setRound(round);
-		// 	// addRound(getEmptyRound());
-		// }
-		// const listener = (e: KeyboardEvent) => {
-		// 	// if (!isAlpha(e.key)) {
-		// 	// 	return;
-		// 	// }
-		// 	// e.preventDefault();
-		// 	// console.log('in listener (that is added on mount)');
-		// 	// onLetterGuessed(e.key);
-		// 	console.log('in listener (that is added on mount)');
-		// 	isAlpha(e.key) && onLetterGuessed(e.key, r);
-		// };
-		// document.addEventListener('keydown', listener);
-		// console.log('ON MOUNT: added keydown listener');
-		// return () => {
-		// 	document.removeEventListener('keydown', listener);
-		// };
+			// if wanna use async (and init phrase in GetEmptyRound)
+			// (async () => {
+			// 	const newgam = await getEmptyGameFromAsync(user, gameSettings);
+			// 	setGame(newgam);
+			// })();
+		}
 	}, []);
 
 	// if game.status === 'Finished', we could display 2 buttons:
