@@ -88,7 +88,7 @@ const Play = () => {
 		if (!round.phrase.includes(letter)) {
 			// reduce number of guesses left
 			enqueueSnackbar(`Wrong letter, -${incorrectLetterPointValue} points!`, {
-				variant: 'warning'
+				variant: 'error'
 			});
 			round.score -= incorrectLetterPointValue;
 			if (round.guessesLeft) {
@@ -248,16 +248,6 @@ const Play = () => {
 				<Stack sx={{ display: 'flex', height: '100%' }}>
 					<Divider />
 					<Keyboard />
-					<Button
-						sx={{ alignSelf: 'flex-end' }}
-						disabled={round.status !== 'Pass'}
-						onClick={onLoadNextRound}
-					>
-						Next level
-					</Button>
-					<Button sx={{ alignSelf: 'flex-end' }} onClick={onStartNewGame}>
-						Reset game
-					</Button>
 					<Button sx={{ alignSelf: 'flex-end' }} onClick={onEndGame}>
 						End game
 					</Button>
