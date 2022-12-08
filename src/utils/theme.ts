@@ -4,10 +4,12 @@ declare module '@mui/material/styles' {
 	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface Palette {
 		backgroundLight?: string;
+		backgroundDarker?: string;
 	}
 	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface PaletteOptions {
 		backgroundLight?: string;
+		backgroundDarker?: string;
 	}
 }
 
@@ -16,7 +18,8 @@ const theme = createTheme({
 		mode: 'dark',
 		primary: { main: '#854dff', light: '#a672d6', dark: '#673199' },
 		secondary: { main: '#f2d45c' },
-		backgroundLight: 'rgba(255, 255, 255, 0.1)'
+		backgroundLight: 'rgba(255, 255, 255, 0.1)',
+		backgroundDarker: 'rgba(255, 255, 255, 0.05)'
 	},
 	components: {
 		MuiCssBaseline: {

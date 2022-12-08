@@ -14,11 +14,11 @@ import AttractionsIcon from '@mui/icons-material/Attractions';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CottageIcon from '@mui/icons-material/Cottage';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import InfoIcon from '@mui/icons-material/Info';
+import Construction from '@mui/icons-material/Construction';
 import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { Container } from '@mui/material';
-import { Settings } from '@mui/icons-material';
 
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import useGame from '../hooks/useGameTest';
@@ -229,39 +229,31 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 							onClick={() => changeActiveTab(2)}
 						/>
 						<AppDrawerListItem
-							text="About"
+							text="Info & Settings"
 							open={drawerOpen}
 							selected={activeTab === 3}
-							icon={<InfoIcon />} //TODO add also logout icon once we have state
+							icon={<Construction />}
 							linkTo="/about"
 							onClick={() => changeActiveTab(3)}
-						/>
-						<AppDrawerListItem
-							text="Settings"
-							open={drawerOpen}
-							selected={activeTab === 4}
-							icon={<Settings />} //TODO add also logout icon once we have state
-							linkTo="/settings"
-							onClick={() => changeActiveTab(4)}
 						/>
 
 						{!user ? (
 							<AppDrawerListItem
 								text="Login"
 								open={drawerOpen}
-								selected={activeTab === 5}
+								selected={activeTab === 4}
 								icon={<LoginIcon />}
 								linkTo="/login"
-								onClick={() => changeActiveTab(5)}
+								onClick={() => changeActiveTab(4)}
 							/>
 						) : (
 							<AppDrawerListItem
 								text="Logout"
 								open={drawerOpen}
-								selected={activeTab === 5}
-								icon={<LoginIcon />}
+								selected={activeTab === 4}
+								icon={<LogoutIcon />}
 								linkTo="/logout"
-								onClick={() => changeActiveTab(5)}
+								onClick={() => changeActiveTab(4)}
 							/>
 						)}
 					</List>
