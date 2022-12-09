@@ -1,5 +1,6 @@
 import { User } from 'firebase/auth';
 import React from 'react';
+import wrap from 'word-wrap';
 
 import { useGameSettings } from '../hooks/useGameSettings';
 import useGame, { useGameContext } from '../hooks/useGameTest';
@@ -7,10 +8,7 @@ import useLoggedInUser from '../hooks/useLoggedInUser';
 import Board, { BoardRow, BoardTile } from '../types/Board';
 import Game from '../types/Game';
 import GameRound from '../types/GameRound';
-import GameSettings, {
-	NumberOfGuessesOptions,
-	TimerOptions
-} from '../types/GameSettings';
+import GameSettings from '../types/GameSettings';
 
 import { gameDocument, gamesCollection, upsertGameDB } from './firebase';
 
@@ -126,20 +124,25 @@ const getUpdatedRow = (row: BoardRow, letter: string): BoardRow =>
 			: { ...field, hidden: false }
 	);
 
+const getPhraseChunks = (phrase: string) =>
+	wrap(phrase.replace(/\.$/, ''), { width: 12 }).split('\n');
+
 // const initBoard = (phrase: string): BoardState =>
 // 	Array.from(phrase).map(c => ({ hidden: true, value: c } as BoardStateTile));
 // [...phrase].map(c => ({ hidden: true, value: c } as Field));
 
 export const createBoard = (phrase: string): Board =>
-	phrase
-		.split(' ')
-		.map(word =>
-			Array.from(word).map(c => ({ hidden: true, value: c } as BoardTile))
-		);
+	getPhraseChunks(phrase.toLowerCase()).map(word =>
+		Array.from(word).map(c => ({ hidden: c !== ' ', value: c } as BoardTile))
+	);
 
 // TODO: replace with an API call
 export const getPhrase = async (): Promise<string> => {
-	const phrases = ['test phrase', 'another one'];
+	const phrases = [
+		'The beginning is always today.',
+		'What worries you masters youu.',
+		'Joy is the best makeup is all.'
+	];
 	const index = Math.floor(Math.random() * phrases.length);
 	return phrases[index];
 };

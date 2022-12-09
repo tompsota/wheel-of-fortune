@@ -14,7 +14,8 @@
     "react-dom": "^18.2.0",
     "react-query": "^3.39.2",
     "react-router-dom": "^6.4.3",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "word-wrap": "^1.2.3"
   },
   "devDependencies": {
     "@haaxor1689/eslint-config": "2.0.2",
