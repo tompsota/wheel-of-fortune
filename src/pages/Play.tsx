@@ -1,4 +1,4 @@
-import { Button, Divider, Grid, Snackbar, Typography } from '@mui/material';
+import { Button, Divider, Grid, Snackbar } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
@@ -13,14 +13,12 @@ import {
 } from '../hooks/useGameTest';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import {
-	createBoard,
 	endGame,
 	getEmptyGame,
 	getEmptyGameFrom,
 	getEmptyGameFromAsync,
 	getEmptyRound,
 	getMultiplier,
-	getPhrase,
 	getUpdatedBoard,
 	isAlpha,
 	isPhraseSolved
@@ -180,18 +178,6 @@ const Play = () => {
 			`game.rounds.length useEffect trigged at value: ${game?.rounds.length}`
 		);
 
-		// TODO: remove completely if phrase is set in getEmptyRound (also 'BeforeInit' would be then useless?)
-		// ... i.e. if async versions of functions are used
-		//  ... actually it might be useless even now?
-		if (round.status === 'BeforeInit') {
-			(async () => {
-				round.phrase = await getPhrase();
-				round.board = createBoard(round.phrase);
-				round.status = 'InProgress';
-				setGame(updateCurrentRoundGame(game, round));
-			})();
-		}
-
 		const listener = (e: KeyboardEvent) => {
 			console.log(
 				`game.rounds.length: Play - using keydown listener: ${JSON.stringify(
@@ -256,6 +242,10 @@ const Play = () => {
 			// 	const newgam = await getEmptyGameFromAsync(user, gameSettings);
 			// 	setGame(newgam);
 			// })();
+		} else if (game.status === 'Saved') {
+			(async () => {
+				setGame(await addRoundGameAsync(game));
+			})();
 		}
 		// else if (game.status === 'Saved') {
 		// 	setGame(addRoundGame(game));
