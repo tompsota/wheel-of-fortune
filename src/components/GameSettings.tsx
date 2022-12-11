@@ -12,6 +12,9 @@ import { useSnackbar } from 'notistack';
 import { FC, useState } from 'react';
 
 import { useGameSettingsContext } from '../hooks/useGameSettings';
+import { useGameContext } from '../hooks/useGameTest';
+import { endGame } from '../utils/game';
+import GameSettingsType from '../types/GameSettings';
 
 import GameSettingsItem from './GameSettingsItem';
 
@@ -20,6 +23,21 @@ const GameSettings: FC = () => {
 	const [settingsOpen, setSettingsOpen] = useState(true);
 	const { enqueueSnackbar } = useSnackbar();
 	const theme = useTheme();
+	const [game, setGame] = useGameContext();
+
+	const settingsChangedHelper = (newSettings: GameSettingsType) => {
+		setGameSettings(newSettings);
+		localStorage.setItem('gamesettings', JSON.stringify(newSettings));
+
+		if (game !== undefined) {
+			// TODO: probably change text 'Settings have been updated.' or something,
+			//       inform user that his game will end if he changes settings (?) - outside of this snackbar
+			enqueueSnackbar(
+				'Your old game has been submitted. New game will have these settings.'
+			);
+		}
+		endGame(game, setGame);
+	};
 
 	const onNumberOfGuessesChanged = (
 		_e: Event,
@@ -30,17 +48,18 @@ const GameSettings: FC = () => {
 			value = value[0];
 		}
 		const numberOfGuesses = value === 0 ? undefined : value;
-		setGameSettings({ ...gameSettings, numberOfGuesses });
-		enqueueSnackbar("Updated settings won't be applied to the current game.");
+		const newSettings = { ...gameSettings, numberOfGuesses };
+		settingsChangedHelper(newSettings);
+		// enqueueSnackbar("Updated settings won't be applied to the current game.");
 	};
 
 	const onTimerChanged = (_e: Event, value: number | number[], _a: number) => {
 		if (Array.isArray(value)) {
 			value = value[0];
 		}
-		const timer = value === 0 ? undefined : value;
-		setGameSettings({ ...gameSettings, timer });
-		enqueueSnackbar("Updated settings won't be applied to the current game.");
+		const timer = value === 0 ? undefined : value; // timer is saved in minutes
+		const newSettings = { ...gameSettings, timer };
+		settingsChangedHelper(newSettings);
 	};
 
 	const handleSettingsOpen = () => {
@@ -115,16 +134,16 @@ const GameSettings: FC = () => {
 							label: 'Unlimited'
 						},
 						{
+							value: 1,
+							label: '1'
+						},
+						{
 							value: 3,
 							label: '3'
 						},
 						{
 							value: 5,
 							label: '5'
-						},
-						{
-							value: 10,
-							label: '10'
 						}
 					]}
 				/>

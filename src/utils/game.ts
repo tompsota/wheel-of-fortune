@@ -1,7 +1,8 @@
 import { User } from 'firebase/auth';
+import React from 'react';
 
 import { useGameSettings } from '../hooks/useGameSettings';
-import useGame from '../hooks/useGameTest';
+import useGame, { useGameContext } from '../hooks/useGameTest';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import Board, { BoardRow, BoardTile } from '../types/Board';
 import Game from '../types/Game';
@@ -10,6 +11,8 @@ import GameSettings, {
 	NumberOfGuessesOptions,
 	TimerOptions
 } from '../types/GameSettings';
+
+import { gameDocument, gamesCollection, upsertGameDB } from './firebase';
 
 const getPhraseFromAPI = async (): Promise<string> => 'test phrase';
 const initBoard = (phrase: string): Board => [];
@@ -70,11 +73,12 @@ export const getEmptyGameFrom = (
 	settings: GameSettings
 ): Game => ({
 	// id: '',
-	playerId: user?.uid ?? '',
+	playerId: user?.uid ?? 'anonymousUserId', // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
 	status: 'InProgress',
 	score: 0,
 	rounds: [getEmptyRound(1, settings)],
-	settings
+	settings,
+	startedAt: new Date()
 });
 
 export const getEmptyGameFromAsync = async (
@@ -86,7 +90,8 @@ export const getEmptyGameFromAsync = async (
 	status: 'InProgress',
 	score: 0,
 	rounds: [await getEmptyRoundAsync(1, settings)],
-	settings
+	settings,
+	startedAt: new Date()
 });
 
 const alphaChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(
@@ -164,24 +169,44 @@ const getNumberOfGuessesMultiplier = (
 	}
 };
 
+// timer is (currently) saved in minutes
 const getTimerMultiplier = (timer: number | undefined): number => {
 	switch (timer) {
 		case undefined:
 			return 1;
-		case 300:
+		case 5:
 			return 1.2;
-		case 180:
+		case 3:
 			return 1.5;
-		case 60:
+		case 1:
 			return 2.0;
 		default:
 			return 1;
 	}
 };
 
-export const saveGame = (game: Game) => {
-	const originalStatus = game.status;
-	game.status = 'Saved';
-	localStorage.setItem('game', JSON.stringify(game));
-	game.status = originalStatus;
+// set game status to 'Finished', and remove current game from context (set to undefined),
+// which means a new game will be created when user starts playing again
+export const endGameHookIssue = (gameToSave?: Game) => {
+	const [game, setGame] = useGameContext();
+	if (gameToSave === undefined) {
+		gameToSave = game;
+	}
+
+	if (gameToSave !== undefined) {
+		gameToSave.status = 'Finished';
+		upsertGameDB(gameToSave, setGame);
+	}
+	setGame(undefined);
+};
+
+export const endGame = (
+	game: Game | undefined,
+	setGame: (value: React.SetStateAction<Game | undefined>) => void
+) => {
+	if (game !== undefined) {
+		game.status = 'Finished';
+		upsertGameDB(game, setGame);
+	}
+	setGame(undefined);
 };

@@ -123,12 +123,13 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 	let timer;
 
 	if (game !== undefined) {
+		// console.log(`AppLayout - game is not undefined`);
 		scoreInfo = `Score: ${getScore(game)} (${getMultiplier(game.settings)}x)`;
 		guessesLeft = game.rounds.at(-1)?.guessesLeft;
 		timer = game.rounds.at(-1)?.timeLeftOnTimer;
 	}
 
-	const displayInfo = game && game.status !== 'Finished';
+	const displayInfo = game !== undefined && game.status !== 'Finished';
 
 	return (
 		<Box sx={{ display: 'flex' }}>
@@ -296,7 +297,9 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 					>
 						<Typography>{user?.displayName ?? 'Guest'}</Typography>
 						{displayInfo && timer && <Typography>{timer}s</Typography>}
-						{displayInfo && <Typography>Level {game.rounds.length}</Typography>}
+						{displayInfo && (
+							<Typography>Level {game?.rounds.length}</Typography>
+						)}
 						{displayInfo && guessesLeft && (
 							<Typography>Guesses left: {guessesLeft}</Typography>
 						)}
