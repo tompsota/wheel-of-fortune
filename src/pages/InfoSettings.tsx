@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import About from './About';
-import GameSettings from './GameSettings';
+import About from '../components/About';
+import GameSettings from '../components/GameSettings';
 
 const InfoSettings: FC = () => (
 	<>

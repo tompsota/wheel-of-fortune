@@ -2,19 +2,21 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 import AppLayout from './components/AppLayout';
-import Home from './components/Home';
-import Leaderboard from './components/Leaderboard';
-import Login from './components/Login';
-import Logout from './components/Logout';
-import NotFound from './components/NotFound';
-import Play from './components/Play';
+import Home from './pages/Home';
+import Leaderboard from './pages/Leaderboard';
+import Login from './pages/Login';
+import Logout from './pages/Logout';
+import NotFound from './pages/NotFound';
+import Play from './pages/Play';
 import { UserProvider } from './hooks/useLoggedInUser';
 import theme from './utils/theme';
 import { GameProvider } from './hooks/useGameTest';
 import { GameSettingsProvider } from './hooks/useGameSettings';
-import InfoSettings from './components/InfoSettings';
+import InfoSettings from './pages/InfoSettings';
+import { GameProviderWrapper } from './components/GameProviderWrapper';
 
 const App = () => {
 	const _tmp = 0; //TODO zmazat, je to tu aby nepindal linter
@@ -30,26 +32,31 @@ const App = () => {
 				preventDuplicate
 				hideIconVariant
 			>
-				<UserProvider>
-					<GameSettingsProvider>
-						<GameProvider>
-							<BrowserRouter>
-								<CssBaseline />
-								<AppLayout>
-									<Routes>
-										<Route path="/" element={<Home />} />
-										<Route path="/play" element={<Play />} />
-										<Route path="/leaderboard" element={<Leaderboard />} />
-										<Route path="/about" element={<InfoSettings />} />
-										<Route path="/login" element={<Login />} />
-										<Route path="/logout" element={<Logout />} />
-										<Route path="*" element={<NotFound />} />
-									</Routes>
-								</AppLayout>
-							</BrowserRouter>
-						</GameProvider>
-					</GameSettingsProvider>
-				</UserProvider>
+				<QueryClientProvider client={new QueryClient()}>
+					<UserProvider>
+						<GameSettingsProvider>
+							<GameProviderWrapper>
+								<GameProvider>
+									<BrowserRouter>
+										<CssBaseline />
+										<AppLayout>
+											<Routes>
+												<Route path="/" element={<Home />} />
+												<Route path="/play" element={<Play />} />
+												<Route path="/leaderboard" element={<Leaderboard />} />
+												{/* change /about to /<...> ? */}
+												<Route path="/about" element={<InfoSettings />} />
+												<Route path="/login" element={<Login />} />
+												<Route path="/logout" element={<Logout />} />
+												<Route path="*" element={<NotFound />} />
+											</Routes>
+										</AppLayout>
+									</BrowserRouter>
+								</GameProvider>
+							</GameProviderWrapper>
+						</GameSettingsProvider>
+					</UserProvider>
+				</QueryClientProvider>
 			</SnackbarProvider>
 		</ThemeProvider>
 	);

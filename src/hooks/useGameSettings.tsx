@@ -20,12 +20,12 @@ const GameSettingsContext = createContext<GameSettingsState>(
 export const GameSettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 	const localStorageGameString = localStorage.getItem('gamesettings');
 	// We load (paused) game from local storage, or create a new game
-	const game =
+	const gameSettings =
 		localStorageGameString === null
 			? {}
 			: (JSON.parse(localStorageGameString) as GameSettings);
 
-	const gameSettingsState = useState<GameSettings>(game);
+	const gameSettingsState = useState<GameSettings>(gameSettings);
 
 	useEffect(() => {
 		// if something should be done once upon mounting GameProvider component

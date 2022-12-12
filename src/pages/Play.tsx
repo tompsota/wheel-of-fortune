@@ -17,6 +17,7 @@ import Game from '../types/Game';
 import GameRound from '../types/GameRound';
 import {
 	createBoard,
+	endGame,
 	getEmptyGame,
 	getEmptyGameAsync,
 	getEmptyGameFrom,
@@ -26,12 +27,12 @@ import {
 	getPhrase,
 	getUpdatedBoard,
 	isAlpha,
-	isPhraseSolved,
-	saveGame
+	isPhraseSolved
+	// saveGame,
 } from '../utils/game';
-
-import Board from './Board';
-import Keyboard from './Keyboard';
+import Board from '../components/Board';
+import Keyboard from '../components/Keyboard';
+import { upsertGameDB } from '../utils/firebase';
 
 const Play = () => {
 	const { enqueueSnackbar } = useSnackbar();
@@ -45,6 +46,9 @@ const Play = () => {
 
 	const round = game?.rounds.at(-1) ?? getEmptyRound();
 
+	const incorrectLetterPointValue = 20;
+	const correctLetterPointValue = 20 * getMultiplier(gameSettings);
+
 	// the issue is that when we load Play component, Round has its status set to 'InProgress'
 	// but when we start the next round, new empty round is added to
 
@@ -56,7 +60,52 @@ const Play = () => {
 	// should get triggered when game gets updated, i.e. when we set new round (this round has a different round number)
 	// useEffect(() => {}, [round.roundNumber]);
 
+	const onIncorrectGuess = () => {
+		if (game === undefined) {
+			return;
+		}
+
+		enqueueSnackbar(`Wrong letter, -${incorrectLetterPointValue} points!`, {
+			variant: 'error'
+		});
+
+		round.score -= incorrectLetterPointValue;
+		game.score -= incorrectLetterPointValue;
+		if (round.guessesLeft) {
+			round.guessesLeft -= 1;
+		}
+
+		// TODO: or if timer reaches zero
+		if (round.guessesLeft === 0) {
+			round.status = 'Fail';
+			setGame(updateCurrentRoundGame(game, round)); // is necessary to update manually?
+			endGame(game, setGame);
+			enqueueSnackbar('Game over! Your result has been saved.');
+			navigate('/game-over');
+			return;
+		}
+
+		setGame(updateCurrentRoundGame(game, round)); // TODO: not necessary?
+	};
+
+	const onCorrectGuess = (letter: string) => {
+		if (game === undefined) {
+			return;
+		}
+
+		round.board = getUpdatedBoard(round.board, letter);
+		round.score += correctLetterPointValue;
+		game.score += correctLetterPointValue;
+
+		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`, {
+			variant: 'success'
+		});
+		setGame(updateCurrentRoundGame(game, round));
+	};
+
 	const onLetterGuessed = (letter: string) => {
+		console.log(`round: ${JSON.stringify(round)}`);
+
 		if (game === undefined) {
 			return;
 		}
@@ -66,71 +115,48 @@ const Play = () => {
 				"You have already solved this phrase, use 'Next level' when ready to proceed to the next one!"
 			);
 			return;
-			// return LetterGuessedResult.PhraseSolved;
 		}
 
 		console.log(`letter ${letter} guessed`);
 		if (round.guessedLetters.includes(letter)) {
 			// inform user that he already clicked on that letter?
 			// maybe disable those letters on on-screen KB?
-			console.log('already guessed');
+			console.log('already guessed this letter');
 			enqueueSnackbar(`You've already guessed letter ${letter}`);
-			// snackbar with info ?
-			// return LetterGuessedResult.AlreadyGuessedLetter;
 			return;
 		}
 
-		// could be placed higher/outside function
-		const incorrectLetterPointValue = 20;
-		const correctLetterPointValue = 20 * getMultiplier(gameSettings);
 		round.guessedLetters.push(letter);
+
 		// phrase doesn't contain such letter
 		if (!round.phrase.includes(letter)) {
 			// reduce number of guesses left
-			enqueueSnackbar(`Wrong letter, -${incorrectLetterPointValue} points!`, {
-				variant: 'error'
-			});
-			round.score -= incorrectLetterPointValue;
-			if (round.guessesLeft) {
-				round.guessesLeft -= 1;
-			}
 
-			// TODO: or if timer reaches zero
-			if (round.guessesLeft === 0) {
-				round.status = 'Fail';
-				game.status = 'Finished';
-				setGame(updateCurrentRoundGame(game, round));
-				// should probably save game immediately? or set game.status to finished,
-				// and only wait for player to submit the score on the 'game over' screen?
-				// .. if he decided he doesn't wanna save the game to the leaderboard
-				navigate('/game-over');
-			}
-			// if there is number of guesses set, decrease number and if equals to 0,
-			// set status to 'fail' and navigate to 'game over'
-			setGame(updateCurrentRoundGame(game, round));
-			// return LetterGuessedResult.IncorrectLetter;
+			onIncorrectGuess();
 			return;
 		}
 
 		// letter is in phrase and wasn't guessed yet
-		round.board = getUpdatedBoard(round.board, letter);
-		round.score += correctLetterPointValue;
-		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`, {
-			variant: 'success'
-		});
-		setGame(updateCurrentRoundGame(game, round));
+		onCorrectGuess(letter);
 
+		// >>> after a successful round, we save the game (still InProgress) to DB
+		// ... new round is added to the game only upon player clicking 'Next level'
+		// TODO: check if it works correctly, if player leaves 'Play' after guessing phrase,
+		//       but before clicking 'Next play'
 		if (isPhraseSolved(round.board)) {
 			console.log('phrase solved');
 			round.status = 'Pass';
+			// TODO: check if round status is set to pass, or we need to call:
+			// setGame(updateCurrentRoundGame(game, round));
+			// ... explicitly
+
 			enqueueSnackbar('You have successfully solved the phrase!');
-			saveGame(game);
+			upsertGameDB(game, setGame);
 			// update round state, set times etc.
 		}
 
 		setGame(updateCurrentRoundGame(game, round));
 		// return LetterGuessedResult.CorrectLetter;
-		return;
 	};
 
 	// -----------------[ on new round added ]------------------
@@ -145,13 +171,16 @@ const Play = () => {
 		);
 
 		// TODO: remove completely if phrase is set in getEmptyRound (also 'BeforeInit' would be then useless?)
+		// ... i.e. if async versions of functions are used
 		//  ... actually it might be useless even now?
-		(async () => {
-			round.phrase = await getPhrase();
-			round.board = createBoard(round.phrase);
-			round.status = 'InProgress';
-			setGame(updateCurrentRoundGame(game, round));
-		})();
+		if (round.status === 'BeforeInit') {
+			(async () => {
+				round.phrase = await getPhrase();
+				round.board = createBoard(round.phrase);
+				round.status = 'InProgress';
+				setGame(updateCurrentRoundGame(game, round));
+			})();
+		}
 
 		const listener = (e: KeyboardEvent) => {
 			console.log(
@@ -171,6 +200,7 @@ const Play = () => {
 	}, [game?.rounds.length]);
 
 	// executed upon pressing 'Next level' button => creates a new empty round
+	// TODO: replace with async version
 	const onLoadNextRound = () => {
 		if (game !== undefined) {
 			setGame(addRoundGame(game));
@@ -193,12 +223,13 @@ const Play = () => {
 	const _onResetGame = onStartNewGame;
 
 	const onEndGame = () => {
-		if (game === undefined) {
-			return;
-		}
-		console.log(`pressed onEndGame: ${game.status}`);
-		game.status = 'Finished';
-		setGame(game);
+		endGame(game, setGame);
+		// if (game === undefined) {
+		// 	return;
+		// }
+		// console.log(`pressed onEndGame: ${game.status}`);
+		// game.status = 'Finished';
+		// setGame(game);
 		navigate('/game-over');
 	};
 
@@ -208,6 +239,7 @@ const Play = () => {
 
 	useEffect(() => {
 		if (game === undefined) {
+			console.log(`Play - on mount: setting new game`);
 			setGame(newGame);
 
 			// if wanna use async (and init phrase in GetEmptyRound)
@@ -215,13 +247,14 @@ const Play = () => {
 			// 	const newgam = await getEmptyGameFromAsync(user, gameSettings);
 			// 	setGame(newgam);
 			// })();
-		} else if (game.status === 'Saved') {
-			setGame(addRoundGame(game));
-
-			// (async () => {
-			// 	setGame(await addRoundGameAsync(game));
-			// })();
 		}
+		// else if (game.status === 'Saved') {
+		// 	setGame(addRoundGame(game));
+
+		// 	// (async () => {
+		// 	// 	setGame(await addRoundGameAsync(game));
+		// 	// })();
+		// }
 
 		// return () => {
 		// 	saveGame(game);
@@ -248,8 +281,11 @@ const Play = () => {
 				<Stack sx={{ display: 'flex', height: '100%' }}>
 					<Divider />
 					<Keyboard />
-					<Button sx={{ alignSelf: 'flex-end' }} onClick={onEndGame}>
+					{/* <Button sx={{ alignSelf: 'flex-end' }} onClick={onEndGame}>
 						End game
+					</Button> */}
+					<Button sx={{ alignSelf: 'flex-end' }} onClick={onLoadNextRound}>
+						Next level
 					</Button>
 				</Stack>
 			</Grid>
