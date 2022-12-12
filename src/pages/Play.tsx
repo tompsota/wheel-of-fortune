@@ -58,10 +58,12 @@ const Play = () => {
 	// useEffect(() => {}, [round.roundNumber]);
 
 	const handleSnackbarClose = () => {
-		console.log('snack close');
-		onLoadNextRound();
 		setSnackbarOpen(false);
-	}; //TODO
+		if (game) {
+			upsertGameDB(game, setGame);
+		}
+		onLoadNextRound();
+	};
 
 	const snackbarAction = (
 		<Button size="small" onClick={handleSnackbarClose}>
@@ -163,7 +165,6 @@ const Play = () => {
 			// setGame(updateCurrentRoundGame(game, round));
 			// ... explicitly
 
-			upsertGameDB(game, setGame);
 			setSnackbarOpen(true);
 
 			// update round state, set times etc.
