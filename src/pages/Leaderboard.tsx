@@ -1,9 +1,10 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { onSnapshot } from 'firebase/firestore';
-import { useState, useEffect, FC } from 'react';
+import { useEffect, useState } from 'react';
 
 import Game from '../types/Game';
 import { gameFromDto, gamesCollection } from '../utils/firebase';
+import LeaderboardTable from '../components/LeaderboardTable';
 
 const Leaderboard = () => {
 	const [games, setGames] = useState<Game[]>();
@@ -23,30 +24,22 @@ const Leaderboard = () => {
 	}, []);
 
 	return (
-		<Stack>
-			<Typography>Leaderboard component</Typography>
+		<Stack sx={{ display: 'flex', justifyContent: 'center' }}>
+			<Typography
+				variant="h3"
+				sx={{ alignSelf: 'center', mt: '1rem', mb: '2rem' }}
+			>
+				Leaderboard
+			</Typography>
 			{games === undefined || games.length === 0 ? (
-				<Typography>No games.</Typography>
+				<Typography sx={{ alignSelf: 'center', mt: '1rem', mb: '2rem' }}>
+					No games.
+				</Typography>
 			) : (
-				// games.map(<LeaderboardGame game={game}  />)
-				<Typography>{games.length} games played</Typography>
+				<LeaderboardTable />
 			)}
 		</Stack>
 	);
 };
-
-// type props = {
-// 	game: Game;
-// 	i: number;
-// };
-
-// const LeaderboardGame: FC<props> = ({ game, i }) => {
-// 	// <Stack key={game.id ?? i.toString()}>
-// 	{
-// 		/* <Typography>Played by: {game.playerId}</Typography> */
-// 	}
-// 	return <Typography>Started at: {game.startedAt}</Typography>;
-// 	// </Stack>
-// };
 
 export default Leaderboard;

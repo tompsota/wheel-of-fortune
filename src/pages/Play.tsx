@@ -1,25 +1,21 @@
-import { Button, Divider, Grid, Typography } from '@mui/material';
+import { Button, Divider, Grid, Snackbar } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useSnackbar } from 'notistack';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-import LetterGuessedResult from '../enums/LetterGuessedResult';
 import { useGameSettings } from '../hooks/useGameSettings';
-import useGame, {
+import {
 	addRoundGame,
 	addRoundGameAsync,
 	updateCurrentRoundGame,
 	useGameContext
 } from '../hooks/useGameTest';
 import useLoggedInUser from '../hooks/useLoggedInUser';
-import Game from '../types/Game';
-import GameRound from '../types/GameRound';
 import {
 	createBoard,
 	endGame,
 	getEmptyGame,
-	getEmptyGameAsync,
 	getEmptyGameFrom,
 	getEmptyGameFromAsync,
 	getEmptyRound,
@@ -41,6 +37,7 @@ const Play = () => {
 	const gameSettings = useGameSettings();
 	const user = useLoggedInUser();
 	const [game, setGame] = useGameContext();
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
 
 	const newGame = getEmptyGame();
 
@@ -59,6 +56,18 @@ const Play = () => {
 
 	// should get triggered when game gets updated, i.e. when we set new round (this round has a different round number)
 	// useEffect(() => {}, [round.roundNumber]);
+
+	const handleSnackbarClose = () => {
+		console.log('snack close');
+		onLoadNextRound();
+		setSnackbarOpen(false);
+	}; //TODO
+
+	const snackbarAction = (
+		<Button size="small" onClick={handleSnackbarClose}>
+			Next level
+		</Button>
+	);
 
 	const onIncorrectGuess = () => {
 		if (game === undefined) {
@@ -93,11 +102,15 @@ const Play = () => {
 			return;
 		}
 
-		round.board = getUpdatedBoard(round.board, letter);
-		round.score += correctLetterPointValue;
-		game.score += correctLetterPointValue;
+		const re = new RegExp(letter, 'g');
+		const totalValue =
+			correctLetterPointValue * (round.phrase.match(re) ?? ' ').length;
 
-		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`, {
+		round.board = getUpdatedBoard(round.board, letter);
+		round.score += totalValue;
+		game.score += totalValue;
+
+		enqueueSnackbar(`Correct letter, +${totalValue} points!`, {
 			variant: 'success'
 		});
 		setGame(updateCurrentRoundGame(game, round));
@@ -150,8 +163,9 @@ const Play = () => {
 			// setGame(updateCurrentRoundGame(game, round));
 			// ... explicitly
 
-			enqueueSnackbar('You have successfully solved the phrase!');
 			upsertGameDB(game, setGame);
+			setSnackbarOpen(true);
+
 			// update round state, set times etc.
 		}
 
@@ -175,7 +189,9 @@ const Play = () => {
 		//  ... actually it might be useless even now?
 		if (round.status === 'BeforeInit') {
 			(async () => {
-				round.phrase = await getPhrase();
+				const { phrase, author } = await getPhrase();
+				round.phrase = phrase;
+				round.phraseAuthor = author;
 				round.board = createBoard(round.phrase);
 				round.status = 'InProgress';
 				setGame(updateCurrentRoundGame(game, round));
@@ -230,7 +246,6 @@ const Play = () => {
 		// console.log(`pressed onEndGame: ${game.status}`);
 		// game.status = 'Finished';
 		// setGame(game);
-		navigate('/game-over');
 	};
 
 	// could add useEffect for game.status, so that we can add 'End game' button,
@@ -247,6 +262,10 @@ const Play = () => {
 			// 	const newgam = await getEmptyGameFromAsync(user, gameSettings);
 			// 	setGame(newgam);
 			// })();
+		} else if (game.status === 'Saved') {
+			(async () => {
+				setGame(await addRoundGameAsync(game));
+			})();
 		}
 		// else if (game.status === 'Saved') {
 		// 	setGame(addRoundGame(game));
@@ -273,23 +292,37 @@ const Play = () => {
 	//    if it's way too difficult, then fuck 'Pause' functionality in general
 	//
 	return (
-		<Grid container direction="column" sx={{ display: 'flex', height: '100%' }}>
-			<Grid item xs={6}>
-				<Board board={round.board} />
+		<>
+			<Grid
+				container
+				direction="column"
+				sx={{ display: 'flex', height: '100%' }}
+			>
+				<Grid item xs={6}>
+					<Board board={round.board} />
+				</Grid>
+				<Grid item xs={6}>
+					<Stack sx={{ display: 'flex', height: '100%' }}>
+						<Divider />
+						<Keyboard />
+						<Button
+							component={Link}
+							sx={{ alignSelf: 'flex-end' }}
+							onClick={onEndGame}
+							to="/"
+						>
+							End game
+						</Button>
+					</Stack>
+				</Grid>
 			</Grid>
-			<Grid item xs={6}>
-				<Stack sx={{ display: 'flex', height: '100%' }}>
-					<Divider />
-					<Keyboard />
-					{/* <Button sx={{ alignSelf: 'flex-end' }} onClick={onEndGame}>
-						End game
-					</Button> */}
-					<Button sx={{ alignSelf: 'flex-end' }} onClick={onLoadNextRound}>
-						Next level
-					</Button>
-				</Stack>
-			</Grid>
-		</Grid>
+			<Snackbar
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				open={snackbarOpen}
+				message="You have successfully solved the phrase!"
+				action={snackbarAction}
+			/>
+		</>
 	);
 };
 

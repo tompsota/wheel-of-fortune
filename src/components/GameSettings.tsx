@@ -1,5 +1,6 @@
 import { ExpandLess, ExpandMore, Settings } from '@mui/icons-material';
 import {
+	Alert,
 	Box,
 	Collapse,
 	Divider,
@@ -96,6 +97,13 @@ const GameSettings: FC = () => {
 			</Box>
 
 			<Collapse in={settingsOpen} timeout="auto" unmountOnExit>
+				<Alert
+					variant="outlined"
+					severity="warning"
+					sx={{ mx: '1.5rem', mt: '1rem' }}
+				>
+					Settings change will end current game and start a one instead!
+				</Alert>
 				<GameSettingsItem
 					label="Number of guesses"
 					value={

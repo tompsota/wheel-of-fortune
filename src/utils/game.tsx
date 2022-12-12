@@ -1,23 +1,19 @@
+import axios from 'axios';
 import { User } from 'firebase/auth';
 import React from 'react';
+import wrap from 'word-wrap';
 
 import { useGameSettings } from '../hooks/useGameSettings';
-import useGame, { useGameContext } from '../hooks/useGameTest';
+import { useGameContext } from '../hooks/useGameTest';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import Board, { BoardRow, BoardTile } from '../types/Board';
 import Game from '../types/Game';
 import GameRound from '../types/GameRound';
-import GameSettings, {
-	NumberOfGuessesOptions,
-	TimerOptions
-} from '../types/GameSettings';
+import GameSettings from '../types/GameSettings';
+import PhraseData from '../types/PhraseData';
 
-import { gameDocument, gamesCollection, upsertGameDB } from './firebase';
+import { upsertGameDB } from './firebase';
 
-const getPhraseFromAPI = async (): Promise<string> => 'test phrase';
-const initBoard = (phrase: string): Board => [];
-
-// export const getEmptyRound = async (): Promise<GameRound> => {
 export const getEmptyRound = (
 	roundNumber = 1,
 	settings?: GameSettings,
@@ -34,6 +30,7 @@ export const getEmptyRound = (
 		guessedLetters: [],
 		score: 0,
 		phrase,
+		phraseAuthor: 'Unknown',
 		guessesLeft: settings?.numberOfGuesses,
 		timeLeftOnTimer: settings?.timer
 	};
@@ -42,19 +39,19 @@ export const getEmptyRound = (
 export const getEmptyRoundAsync = async (
 	roundNumber = 1,
 	settings?: GameSettings
-): Promise<GameRound> => {
-	const phrase = await getPhrase();
-	return {
-		board: createBoard(phrase),
+): Promise<GameRound> =>
+	// const { phrase, author } = await getPhrase();
+	({
+		board: createBoard('phrase'),
 		status: 'BeforeInit',
 		roundNumber,
 		guessedLetters: [],
 		score: 0,
-		phrase,
+		phrase: 'phrase',
+		phraseAuthor: 'author',
 		guessesLeft: settings?.numberOfGuesses,
 		timeLeftOnTimer: settings?.timer
-	};
-};
+	});
 
 export const getEmptyGame = (): Game => {
 	const user = useLoggedInUser();
@@ -126,22 +123,17 @@ const getUpdatedRow = (row: BoardRow, letter: string): BoardRow =>
 			: { ...field, hidden: false }
 	);
 
-// const initBoard = (phrase: string): BoardState =>
-// 	Array.from(phrase).map(c => ({ hidden: true, value: c } as BoardStateTile));
-// [...phrase].map(c => ({ hidden: true, value: c } as Field));
+const getPhraseChunks = (phrase: string) =>
+	wrap(phrase.toLowerCase().replace(/\.$/, ''), { width: 15 }).split('\n');
 
 export const createBoard = (phrase: string): Board =>
-	phrase
-		.split(' ')
-		.map(word =>
-			Array.from(word).map(c => ({ hidden: true, value: c } as BoardTile))
-		);
+	getPhraseChunks(phrase.toLowerCase()).map(word =>
+		Array.from(word).map(c => ({ hidden: isAlpha(c), value: c } as BoardTile))
+	);
 
-// TODO: replace with an API call
-export const getPhrase = async (): Promise<string> => {
-	const phrases = ['test phrase', 'another one'];
-	const index = Math.floor(Math.random() * phrases.length);
-	return phrases[index];
+export const getPhrase = async (): Promise<PhraseData> => {
+	const p = await axios.get('https://api.quotable.io/random?maxLength=35');
+	return { phrase: p.data.content, author: p.data.author };
 };
 
 export const getScore = (game: Game): number =>
@@ -152,7 +144,6 @@ export const getMultiplier = (settings: GameSettings): number =>
 	getTimerMultiplier(settings.timer);
 
 const getNumberOfGuessesMultiplier = (
-	// numberOfGuesses: NumberOfGuessesOptions
 	numberOfGuesses: number | undefined
 ): number => {
 	switch (numberOfGuesses) {

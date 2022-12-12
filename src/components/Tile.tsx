@@ -1,4 +1,4 @@
-import { Grid, useTheme } from '@mui/material';
+import { Box, Grid, Typography, useTheme } from '@mui/material';
 import { FC } from 'react';
 
 import { BoardTile } from '../types/Board';
@@ -12,16 +12,16 @@ const Tile: FC<Props> = ({ tile }) => {
 	const theme = useTheme();
 
 	// empty/blank tile
-	if (tile.value === undefined) {
+	if (tile.value === undefined || tile.value === ' ') {
 		return (
-			<Grid
+			<Box
 				sx={{
 					m: 1,
 					fontSize: '1vw',
 					width: '3.2vw',
 					height: '3.2vw',
 					borderRadius: '0.25rem',
-					border: `0.5px solid ${theme.palette.secondary.main}`
+					border: `0.5px solid ${theme.palette.secondary.dark}`
 				}}
 			/>
 		);
@@ -30,18 +30,21 @@ const Tile: FC<Props> = ({ tile }) => {
 	// hidden tile with letter
 	if (tile.hidden) {
 		return (
-			<Grid
+			<Box
 				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
 					m: 1,
 					fontSize: '1vw',
 					width: '3.2vw',
 					height: '3.2vw',
 					borderRadius: '0.25rem',
-					border: `0.5px solid ${theme.palette.secondary.main}`
+					border: `0.5px solid ${theme.palette.secondary.light}`
 				}}
 			>
-				?
-			</Grid>
+				<Typography fontSize="1.2vw">?</Typography>
+			</Box>
 		);
 	}
 
@@ -49,16 +52,24 @@ const Tile: FC<Props> = ({ tile }) => {
 	return (
 		<Grid
 			sx={{
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
 				m: 1,
 				fontSize: '1vw',
 				width: '3.2vw',
 				height: '3.2vw',
 				borderRadius: '0.25rem',
-				border: `0.5px solid ${theme.palette.secondary.main}`,
-				textAlign: 'center'
+				border: `0.5px solid ${theme.palette.secondary.main}`
 			}}
 		>
-			{tile.value}
+			<Typography
+				color={theme.palette.secondary.light}
+				textTransform="uppercase"
+				fontSize="1.5vw"
+			>
+				{tile.value}
+			</Typography>
 		</Grid>
 	);
 };

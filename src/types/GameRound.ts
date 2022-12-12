@@ -8,6 +8,7 @@ type GameRound = {
 	status: 'Pass' | 'Fail' | 'BeforeInit' | 'InProgress';
 	score: number;
 	phrase: string;
+	phraseAuthor: string;
 	guessedLetters: string[];
 	// duration: Timestamp;
 	// startedAt: Timestamp;

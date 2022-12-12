@@ -7,14 +7,17 @@
     "@emotion/styled": "^11.10.4",
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.10",
+    "axios": "^1.2.1",
     "@react-query-firebase/firestore": "^1.0.0-dev.7",
     "firebase": "^9.14.0",
     "notistack": "^2.0.8",
     "react": "^18.2.0",
+    "react-countdown": "^2.3.5",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.2",
     "react-router-dom": "^6.4.3",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "word-wrap": "^1.2.3"
   },
   "devDependencies": {
     "@haaxor1689/eslint-config": "2.0.2",
