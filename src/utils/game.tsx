@@ -124,16 +124,16 @@ const getUpdatedRow = (row: BoardRow, letter: string): BoardRow =>
 	);
 
 const getPhraseChunks = (phrase: string) =>
-	wrap(phrase.toLowerCase().replace(/\.$/, ''), { width: 15 }).split('\n');
+	wrap(phrase.replace(/\.$/, ''), { width: 15 }).split('\n');
 
 export const createBoard = (phrase: string): Board =>
-	getPhraseChunks(phrase.toLowerCase()).map(word =>
+	getPhraseChunks(phrase).map(word =>
 		Array.from(word).map(c => ({ hidden: isAlpha(c), value: c } as BoardTile))
 	);
 
 export const getPhrase = async (): Promise<PhraseData> => {
 	const p = await axios.get('https://api.quotable.io/random?maxLength=35');
-	return { phrase: p.data.content, author: p.data.author };
+	return { phrase: p.data.content.toLowerCase(), author: p.data.author };
 };
 
 export const getScore = (game: Game): number =>
