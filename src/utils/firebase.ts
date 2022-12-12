@@ -157,6 +157,7 @@ export const upsertGameDB = (
 export const getPlayersGameInProgress = (
 	playerId: User['uid'] | undefined
 ): Game | undefined => {
+	playerId = playerId ?? '0';
 	const lastGameQuery = query(
 		gamesCollection,
 		where('playerId', '==', playerId),

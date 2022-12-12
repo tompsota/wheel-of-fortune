@@ -13,12 +13,14 @@ import {
 } from '../hooks/useGameTest';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import {
+	createBoard,
 	endGame,
 	getEmptyGame,
 	getEmptyGameFrom,
 	getEmptyGameFromAsync,
 	getEmptyRound,
 	getMultiplier,
+	getPhrase,
 	getUpdatedBoard,
 	isAlpha,
 	isPhraseSolved
@@ -57,7 +59,7 @@ const Play = () => {
 
 	const handleSnackbarClose = () => {
 		console.log('snack close');
-		onLoadNextRound()
+		onLoadNextRound();
 		setSnackbarOpen(false);
 	}; //TODO
 
@@ -100,11 +102,15 @@ const Play = () => {
 			return;
 		}
 
-		round.board = getUpdatedBoard(round.board, letter);
-		round.score += correctLetterPointValue;
-		game.score += correctLetterPointValue;
+		const re = new RegExp(letter, 'g');
+		const totalValue =
+			correctLetterPointValue * (round.phrase.match(re) ?? ' ').length;
 
-		enqueueSnackbar(`Correct letter, +${correctLetterPointValue} points!`, {
+		round.board = getUpdatedBoard(round.board, letter);
+		round.score += totalValue;
+		game.score += totalValue;
+
+		enqueueSnackbar(`Correct letter, +${totalValue} points!`, {
 			variant: 'success'
 		});
 		setGame(updateCurrentRoundGame(game, round));
@@ -177,6 +183,20 @@ const Play = () => {
 		console.log(
 			`game.rounds.length useEffect trigged at value: ${game?.rounds.length}`
 		);
+
+		// TODO: remove completely if phrase is set in getEmptyRound (also 'BeforeInit' would be then useless?)
+		// ... i.e. if async versions of functions are used
+		//  ... actually it might be useless even now?
+		if (round.status === 'BeforeInit') {
+			(async () => {
+				const { phrase, author } = await getPhrase();
+				round.phrase = phrase;
+				round.phraseAuthor = author;
+				round.board = createBoard(round.phrase);
+				round.status = 'InProgress';
+				setGame(updateCurrentRoundGame(game, round));
+			})();
+		}
 
 		const listener = (e: KeyboardEvent) => {
 			console.log(

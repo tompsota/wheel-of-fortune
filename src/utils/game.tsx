@@ -4,7 +4,7 @@ import React from 'react';
 import wrap from 'word-wrap';
 
 import { useGameSettings } from '../hooks/useGameSettings';
-import useGame, { useGameContext } from '../hooks/useGameTest';
+import { useGameContext } from '../hooks/useGameTest';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import Board, { BoardRow, BoardTile } from '../types/Board';
 import Game from '../types/Game';
@@ -12,7 +12,7 @@ import GameRound from '../types/GameRound';
 import GameSettings from '../types/GameSettings';
 import PhraseData from '../types/PhraseData';
 
-import { gameDocument, gamesCollection, upsertGameDB } from './firebase';
+import { upsertGameDB } from './firebase';
 
 export const getEmptyRound = (
 	roundNumber = 1,
@@ -39,20 +39,19 @@ export const getEmptyRound = (
 export const getEmptyRoundAsync = async (
 	roundNumber = 1,
 	settings?: GameSettings
-): Promise<GameRound> => {
-	const { phrase, author } = await getPhrase();
-	return {
-		board: createBoard(phrase),
+): Promise<GameRound> =>
+	// const { phrase, author } = await getPhrase();
+	({
+		board: createBoard('phrase'),
 		status: 'BeforeInit',
 		roundNumber,
 		guessedLetters: [],
 		score: 0,
-		phrase,
-		phraseAuthor: author,
+		phrase: 'phrase',
+		phraseAuthor: 'author',
 		guessesLeft: settings?.numberOfGuesses,
 		timeLeftOnTimer: settings?.timer
-	};
-};
+	});
 
 export const getEmptyGame = (): Game => {
 	const user = useLoggedInUser();
@@ -125,7 +124,7 @@ const getUpdatedRow = (row: BoardRow, letter: string): BoardRow =>
 	);
 
 const getPhraseChunks = (phrase: string) =>
-	wrap(phrase.replace(/\.$/, ''), { width: 15 }).split('\n');
+	wrap(phrase.toLowerCase().replace(/\.$/, ''), { width: 15 }).split('\n');
 
 export const createBoard = (phrase: string): Board =>
 	getPhraseChunks(phrase.toLowerCase()).map(word =>
