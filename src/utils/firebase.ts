@@ -140,14 +140,14 @@ export const upsertGameDB = (
 	setGame: (value: React.SetStateAction<Game | undefined>) => void
 ) => {
 	if (game.id === undefined) {
-		console.log(`adding new game: ${JSON.stringify(game)}`);
 		addDoc(gamesCollection, gameToDto(game)).then(doc => {
 			game.id = doc.id;
 			console.log(`game created, id: ${doc.id}`);
-			setGame(game);
+			// setGame(game);
 		});
 	} else {
 		setDoc(gameDocument(game.id), gameToDto(game));
+		console.log(`game updated, id: ${game.id}`);
 	}
 };
 
@@ -197,7 +197,7 @@ export const getPlayersGameInProgress = (
 		return undefined;
 	}
 
-	console.log(`returning recent game: ${JSON.stringify(game)}`);
+	// console.log(`returning recent game: ${JSON.stringify(game)}`);
 	return game;
 };
 
@@ -246,7 +246,7 @@ export const getPlayersGameInProgressTest = (
 		// return undefined;
 	}
 
-	console.log(`returning recent game: ${JSON.stringify(game)}`);
+	// console.log(`returning recent game: ${JSON.stringify(game)}`);
 	setGame(game);
 	// return game;
 };
@@ -265,20 +265,38 @@ export const userDocument = (id: string) =>
 
 export const getUserDB = async (authUser: AuthUser): Promise<User> => {
 	const userDoc = userDocument(authUser.uid);
-	const docSnap = await getDoc(userDocument(authUser.uid));
+	const docSnap = await getDoc(userDoc);
 
 	if (docSnap.exists()) {
-		return { ...docSnap.data(), authUser };
+		return { ...docSnap.data(), id: authUser.uid };
 	}
 
 	const userDto = {
 		nickname: authUser.displayName ?? authUser.email ?? 'Anonymous user',
 		avatarUrl:
 			authUser.photoURL ??
-			'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+			'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+		email: authUser.email
 	};
 	await setDoc(userDoc, userDto);
-	return { ...userDto, authUser };
+	return { ...userDto, id: authUser.uid };
+};
+
+export const getUserByIdDB = async (userId: string): Promise<User> => {
+	const userDoc = userDocument(userId);
+	const docSnap = await getDoc(userDoc);
+
+	if (docSnap.exists()) {
+		return { ...docSnap.data(), id: userId };
+	}
+
+	return {
+		id: userId,
+		nickname: 'Anonymous user',
+		avatarUrl:
+			'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg',
+		email: null
+	};
 };
 
 // const userDocRef =
@@ -292,6 +310,10 @@ export const getUserDB = async (authUser: AuthUser): Promise<User> => {
 export const getPlayersGameInProgressAsync = async (
 	playerId: AuthUser['uid'] | undefined
 ): Promise<Game | undefined> => {
+	if (playerId === undefined) {
+		return undefined;
+	}
+
 	const lastGameQuery = query(
 		gamesCollection,
 		where('playerId', '==', playerId),
@@ -327,6 +349,6 @@ export const getPlayersGameInProgressAsync = async (
 		// return undefined;
 	}
 
-	console.log(`returning recent game: ${JSON.stringify(game)}`);
+	// console.log(`returning recent game: ${JSON.stringify(game)}`);
 	return game;
 };

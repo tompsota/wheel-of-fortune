@@ -18,16 +18,24 @@ const GameSettingsContext = createContext<GameSettingsState>(
 
 // Wrapped context provider
 export const GameSettingsProvider: FC<PropsWithChildren> = ({ children }) => {
+	console.log('GameSettings Provider - render');
+
+	const defaultSettings = {
+		timer: null,
+		numberOfGuesses: null
+	} as GameSettings;
+
 	const localStorageGameString = localStorage.getItem('gamesettings');
 	// We load (paused) game from local storage, or create a new game
 	const gameSettings =
 		localStorageGameString === null
-			? {}
+			? defaultSettings
 			: (JSON.parse(localStorageGameString) as GameSettings);
 
 	const gameSettingsState = useState<GameSettings>(gameSettings);
 
 	useEffect(() => {
+		console.log('GameSettings Provider - on mount');
 		// if something should be done once upon mounting GameProvider component
 	}, []);
 

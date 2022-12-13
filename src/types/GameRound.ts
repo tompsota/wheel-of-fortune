@@ -11,11 +11,11 @@ type GameRound = {
 	phraseAuthor: string;
 	guessedLetters: string[];
 	// duration: Timestamp;
-	// startedAt: Timestamp;
+	startedAt: Date;
 	// finishedAt: Timestamp; // since game can be paused (soon TM), this can't be used to calculate duration)
 	// TODO: have to change ideally to null, since can't save undefined to DB
-	guessesLeft?: number; // if we decide to add game settings
-	timeLeftOnTimer?: number; // if we decide to add game settings
+	guessesLeft: number | null; // if we decide to add game settings
+	timeLeftOnTimer: number | null; // if we decide to add game settings
 };
 
 export default GameRound;

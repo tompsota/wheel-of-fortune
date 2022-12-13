@@ -17,6 +17,8 @@ const UserContext = createContext<UserState>(undefined as never);
 
 // Wrapped context provider
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
+	console.log('UserProvider - render');
+
 	const localStorageUserString = localStorage.getItem('user');
 	// We load user from local storage
 	const localStorageUser =
@@ -30,7 +32,9 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	// // Setup onAuthChanged once when component is mounted
 	useEffect(() => {
+		console.log('UserProvider - on mount');
 		onAuthChanged(authUser => {
+			console.log('auth changed');
 			if (authUser === null) {
 				setUser(undefined);
 				localStorage.removeItem('user');

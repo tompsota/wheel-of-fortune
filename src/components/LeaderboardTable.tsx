@@ -8,6 +8,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
+import GameWithPlayer from '../types/GameWithPlayer';
+import { getGameMode } from '../utils/game';
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
 		backgroundColor: theme.palette.common.black,
@@ -46,7 +49,11 @@ const rows = [
 	createData('Gingerbread', 356, 'mode', Date.now().toLocaleString())
 ];
 
-const LeaderboardTable = () => (
+type Props = {
+	games: GameWithPlayer[];
+};
+
+const LeaderboardTable: React.FC<Props> = ({ games }) => (
 	<TableContainer component={Paper}>
 		<Table sx={{ minWidth: 200 }} aria-label="customized table">
 			<TableHead>
@@ -76,17 +83,24 @@ const LeaderboardTable = () => (
 				</TableRow>
 			</TableHead>
 			<TableBody>
-				{rows.map((row, idx) => (
-					<StyledTableRow key={row.name}>
+				{games.map((game, idx) => (
+					<StyledTableRow key={game.id ?? idx.toString()}>
 						<StyledTableCell align="center" sx={{ fontWeight: 'bold' }}>
 							{idx + 1}
 						</StyledTableCell>
 						<StyledTableCell component="th" scope="row">
-							{row.name}
+							{game.player?.nickname ?? 'Anonymous guest'}
 						</StyledTableCell>
-						<StyledTableCell align="center">{row.totalPoints}</StyledTableCell>
-						<StyledTableCell align="center">{row.mode}</StyledTableCell>
-						<StyledTableCell align="center">{row.date}</StyledTableCell>
+						<StyledTableCell align="center">{game.score}</StyledTableCell>
+						<StyledTableCell align="center">
+							{getGameMode(game)}
+						</StyledTableCell>
+						<StyledTableCell align="center">
+							{/* {game.startedAt.toLocaleDateString()} */}
+							{/* ??? getTime() is not a function */}
+							{game.startedAt.toString()}
+							{/* {new Date(game.startedAt.getTime()).toDateString()} */}
+						</StyledTableCell>
 					</StyledTableRow>
 				))}
 			</TableBody>

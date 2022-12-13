@@ -13,7 +13,7 @@ import NotFound from './pages/NotFound';
 import Play from './pages/Play';
 import { UserProvider } from './hooks/useLoggedInUser';
 import theme from './utils/theme';
-import { GameProvider } from './hooks/useGameTest';
+import { GameProvider } from './hooks/useGame';
 import { GameSettingsProvider } from './hooks/useGameSettings';
 import InfoSettings from './pages/InfoSettings';
 import { GameProviderWrapper } from './components/GameProviderWrapper';
@@ -35,24 +35,24 @@ const App = () => {
 				<QueryClientProvider client={new QueryClient()}>
 					<UserProvider>
 						<GameSettingsProvider>
-							<GameProviderWrapper>
-								<GameProvider>
-									<BrowserRouter>
-										<CssBaseline />
-										<AppLayout>
-											<Routes>
-												<Route path="/" element={<Home />} />
-												<Route path="/play" element={<Play />} />
-												<Route path="/leaderboard" element={<Leaderboard />} />
-												<Route path="/settings" element={<InfoSettings />} />
-												<Route path="/login" element={<Login />} />
-												<Route path="/logout" element={<Logout />} />
-												<Route path="*" element={<NotFound />} />
-											</Routes>
-										</AppLayout>
-									</BrowserRouter>
-								</GameProvider>
-							</GameProviderWrapper>
+							{/* <GameProviderWrapper> */}
+							<GameProvider>
+								<BrowserRouter>
+									<CssBaseline />
+									<AppLayout>
+										<Routes>
+											<Route path="/" element={<Home />} />
+											<Route path="/play" element={<Play />} />
+											<Route path="/leaderboard" element={<Leaderboard />} />
+											<Route path="/settings" element={<InfoSettings />} />
+											<Route path="/login" element={<Login />} />
+											<Route path="/logout" element={<Logout />} />
+											<Route path="*" element={<NotFound />} />
+										</Routes>
+									</AppLayout>
+								</BrowserRouter>
+							</GameProvider>
+							{/* </GameProviderWrapper> */}
 						</GameSettingsProvider>
 					</UserProvider>
 				</QueryClientProvider>

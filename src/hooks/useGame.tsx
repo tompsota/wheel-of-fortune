@@ -14,6 +14,7 @@ import Game from '../types/Game';
 import GameRound from '../types/GameRound';
 import {
 	getPlayersGameInProgress,
+	getPlayersGameInProgressAsync,
 	getPlayersGameInProgressTest,
 	upsertGameDB
 } from '../utils/firebase';
@@ -29,43 +30,51 @@ type Props = {
 	game: Game | undefined;
 } & PropsWithChildren;
 
-export const GameProviderTest: FC<Props> = ({ game, children }) => {
+export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 	console.log('GameProvider - render');
 
-	const [_gameSettings, setGameSettings] = useGameSettingsContext();
-	// console.log(`received game: ${JSON.stringify(game)}`);
-	const gameState = useState<Game | undefined>(game);
+	const user = useLoggedInUser();
+	const [_, setGameSettings] = useGameSettingsContext();
+	// const game = getPlayersGameInProgress(user?.authUser.uid);
+
+	const gameState = useState<Game | undefined>();
+	const [game, setGame] = gameState;
 
 	useEffect(() => {
-		if (game !== undefined) {
-			setGameSettings(game.settings);
-		}
+		console.log('GameProvider - on mount');
+		(async () => {
+			// console.log(`GameProvider - on mount - userId: ${user?.id}`);
+			const currentGame = await getPlayersGameInProgressAsync(user?.id);
+			console.log(`GameProvider - on mount - game: ${game}`);
+			setGame(currentGame);
+			if (currentGame !== undefined) {
+				setGameSettings(currentGame?.settings);
+			}
+		})();
 
-		// const lastGame =
-		// 	user === undefined ? undefined : getPlayersGameInProgress(user.uid);
-		// setGame(lastGame);
+		const listener = (_e: Event) => {
+			console.log('onbeforeunload triggered');
+			if (game !== undefined) {
+				console.log(`onbeforeunload triggered - update game: ${game}`);
+				upsertGameDB(game, setGame);
+			}
+		};
 
-		// if (lastGame !== undefined) {
-		// 	setGameSettings(lastGame.settings);
-		// }
-		// if something should be done once upon mounting GameProvider component
+		window.addEventListener('beforeunload', listener);
+
+		// save the game on unmount, to prevent possible cheating by closing the game,
+		// since the game in DB only updates upon every finished round:
+		// - too many wrong guesses / low on timer / difficult phrase => close game => start fresh new round
+		// .. or to save a game before player has finished a single round
+		return () => {
+			if (game !== undefined) {
+				console.log(`unmount GameProvider - update game: ${game}`);
+				upsertGameDB(game, setGame);
+				setGame(game);
+			}
+			window.removeEventListener('beforeunload', listener);
+		};
 	}, []);
-
-	//
-	//
-	// the last player's game gets fetched correctly (renders twice with undefined value,
-	// third time returns the correct game), BUT the state itself doesn't get updated???
-	// ... i.e. the game from GameContext is still undefined (for Play, AppLayout etc.),
-	// ... but adding this hook fixes it :DDD BUT THIS REFRESHES EVERY TIME game IS UPDATED
-	//  AND ON RE-RENDER, WE FETCH GAME AGAIN AND KEEP SETTING IT
-	// useEffect(() => {
-	// 	if (game !== undefined && _game === undefined) {
-	// 		console.log(
-	// 			`GameProvider - useEffect [game]: setting game: ${JSON.stringify(game)}`
-	// 		);
-	// 		setGame(game);
-	// 	}
-	// }, [game?.startedAt]);
 
 	return (
 		<GameContext.Provider value={gameState}>{children}</GameContext.Provider>
@@ -73,7 +82,7 @@ export const GameProviderTest: FC<Props> = ({ game, children }) => {
 };
 
 // Wrapped context provider
-export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
+export const GameProviderOld: FC<PropsWithChildren> = ({ children }) => {
 	// const localStorageGameString = localStorage.getItem('game');
 	// We load (paused) game from local storage, or create a new game
 	// const game =
@@ -146,18 +155,18 @@ export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 	// third time returns the correct game), BUT the state itself doesn't get updated???
 	// ... i.e. the game from GameContext is still undefined (for Play, AppLayout etc.),
 	// ... but adding this hook fixes it :DDD
-	useEffect(() => {
-		console.log(`GameProvider - useEffect`);
-		if (
-			gameInProgress !== undefined &&
-			gameInProgress.status !== 'Finished' &&
-			game === undefined
-		) {
-			// console.log(`GameProvider - useEffect - setting game`);
-			console.log(`                        - setting game`);
-			setGame(gameInProgress);
-		}
-	}, [gameInProgress?.startedAt]);
+	// useEffect(() => {
+	// 	console.log(`GameProvider - useEffect`);
+	// 	if (
+	// 		gameInProgress !== undefined &&
+	// 		gameInProgress.status !== 'Finished' &&
+	// 		game === undefined
+	// 	) {
+	// 		// console.log(`GameProvider - useEffect - setting game`);
+	// 		console.log(`                        - setting game`);
+	// 		setGame(gameInProgress);
+	// 	}
+	// }, [gameInProgress?.startedAt]);
 
 	return (
 		<GameContext.Provider value={gameState}>{children}</GameContext.Provider>

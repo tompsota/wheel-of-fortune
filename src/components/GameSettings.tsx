@@ -13,7 +13,7 @@ import { useSnackbar } from 'notistack';
 import { FC, useState } from 'react';
 
 import { useGameSettingsContext } from '../hooks/useGameSettings';
-import { useGameContext } from '../hooks/useGameTest';
+import { useGameContext } from '../hooks/useGame';
 import { endGame } from '../utils/game';
 import GameSettingsType from '../types/GameSettings';
 
@@ -34,8 +34,15 @@ const GameSettings: FC = () => {
 			// TODO: probably change text 'Settings have been updated.' or something,
 			//       inform user that his game will end if he changes settings (?) - outside of this snackbar
 			enqueueSnackbar(
-				'Your old game has been submitted. New game will have these settings.'
+				'Your old game has been submitted. New game will have these settings.',
+				{
+					autoHideDuration: 5000
+				}
 			);
+		} else {
+			enqueueSnackbar('Settings updated.', {
+				autoHideDuration: 3000
+			});
 		}
 		endGame(game, setGame);
 	};
@@ -48,7 +55,7 @@ const GameSettings: FC = () => {
 		if (Array.isArray(value)) {
 			value = value[0];
 		}
-		const numberOfGuesses = value === 0 ? undefined : value;
+		const numberOfGuesses = value === 0 ? null : value;
 		const newSettings = { ...gameSettings, numberOfGuesses };
 		settingsChangedHelper(newSettings);
 		// enqueueSnackbar("Updated settings won't be applied to the current game.");
@@ -58,7 +65,7 @@ const GameSettings: FC = () => {
 		if (Array.isArray(value)) {
 			value = value[0];
 		}
-		const timer = value === 0 ? undefined : value; // timer is saved in minutes
+		const timer = value === 0 ? null : value * 60; // timer is saved in seconds
 		const newSettings = { ...gameSettings, timer };
 		settingsChangedHelper(newSettings);
 	};
@@ -107,7 +114,7 @@ const GameSettings: FC = () => {
 				<GameSettingsItem
 					label="Number of guesses"
 					value={
-						gameSettings.numberOfGuesses === undefined
+						gameSettings.numberOfGuesses === null
 							? 0
 							: gameSettings.numberOfGuesses
 					}
@@ -134,7 +141,7 @@ const GameSettings: FC = () => {
 				<Divider />
 				<GameSettingsItem
 					label="Round timer"
-					value={gameSettings.timer === undefined ? 0 : gameSettings.timer}
+					value={gameSettings.timer === null ? 0 : gameSettings.timer}
 					onChange={onTimerChanged}
 					options={[
 						{

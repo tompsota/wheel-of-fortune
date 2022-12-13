@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React from 'react';
 import wrap from 'word-wrap';
+import { NavigateFunction } from 'react-router-dom';
 
 import { useGameSettings } from '../hooks/useGameSettings';
-import { useGameContext } from '../hooks/useGameTest';
+import { useGameContext } from '../hooks/useGame';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import Board, { BoardRow, BoardTile } from '../types/Board';
 import Game from '../types/Game';
@@ -11,6 +12,7 @@ import GameRound from '../types/GameRound';
 import GameSettings from '../types/GameSettings';
 import PhraseData from '../types/PhraseData';
 import User from '../types/User';
+import GameWithPlayer from '../types/GameWithPlayer';
 
 import { upsertGameDB } from './firebase';
 
@@ -31,27 +33,52 @@ export const getEmptyRound = (
 		score: 0,
 		phrase,
 		phraseAuthor: 'Unknown',
-		guessesLeft: settings?.numberOfGuesses,
-		timeLeftOnTimer: settings?.timer
+		guessesLeft: settings?.numberOfGuesses ?? null,
+		timeLeftOnTimer: settings?.timer ?? null,
+		startedAt: new Date()
+	};
+};
+
+export const getPlaceholderRound = (
+	roundNumber = 1,
+	settings?: GameSettings
+): GameRound => {
+	// const game = useGame();
+	// const phrase = await getPhraseFromAPI();
+	const phrase = '        ';
+	return {
+		board: createBoard(phrase),
+		status: 'InProgress',
+		roundNumber,
+		guessedLetters: [],
+		score: 0,
+		phrase,
+		phraseAuthor: 'Unknown',
+		guessesLeft: settings?.numberOfGuesses ?? null,
+		timeLeftOnTimer: settings?.timer ?? null,
+		startedAt: new Date()
 	};
 };
 
 export const getEmptyRoundAsync = async (
 	roundNumber = 1,
 	settings?: GameSettings
-): Promise<GameRound> =>
-	// const { phrase, author } = await getPhrase();
-	({
-		board: createBoard('phrase'),
-		status: 'BeforeInit',
+): Promise<GameRound> => {
+	const { phrase, author } = await getPhrase();
+	console.log(`>>> phrase: ${phrase}, ${author}`);
+	return {
+		board: createBoard(phrase),
+		status: 'InProgress',
 		roundNumber,
 		guessedLetters: [],
 		score: 0,
-		phrase: 'phrase',
-		phraseAuthor: 'author',
-		guessesLeft: settings?.numberOfGuesses,
-		timeLeftOnTimer: settings?.timer
-	});
+		phrase,
+		phraseAuthor: author,
+		guessesLeft: settings?.numberOfGuesses ?? null,
+		timeLeftOnTimer: settings?.timer ?? null,
+		startedAt: new Date()
+	};
+};
 
 export const getEmptyGame = (): Game => {
 	const user = useLoggedInUser();
@@ -70,7 +97,7 @@ export const getEmptyGameFrom = (
 	settings: GameSettings
 ): Game => ({
 	// id: '',
-	playerId: user?.authUser.uid ?? 'anonymousUserId', // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
+	playerId: user?.id ?? null, // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
 	status: 'InProgress',
 	score: 0,
 	rounds: [getEmptyRound(1, settings)],
@@ -83,7 +110,7 @@ export const getEmptyGameFromAsync = async (
 	settings: GameSettings
 ): Promise<Game> => ({
 	// id: '',
-	playerId: user?.authUser.uid ?? '',
+	playerId: user?.id ?? null,
 	status: 'InProgress',
 	score: 0,
 	rounds: [await getEmptyRoundAsync(1, settings)],
@@ -125,6 +152,9 @@ const getUpdatedRow = (row: BoardRow, letter: string): BoardRow =>
 
 const getPhraseChunks = (phrase: string) =>
 	wrap(phrase.replace(/\.$/, ''), { width: 15 }).split('\n');
+// TODO: check if this change is valid
+// the original regex removes dot at the end (?), this one removes all non-alpha/space characters
+// wrap(phrase.replace(/[^a-zA-Z ]/g, ''), { width: 15 }).split('\n');
 
 export const createBoard = (phrase: string): Board =>
 	getPhraseChunks(phrase).map(word =>
@@ -144,10 +174,10 @@ export const getMultiplier = (settings: GameSettings): number =>
 	getTimerMultiplier(settings.timer);
 
 const getNumberOfGuessesMultiplier = (
-	numberOfGuesses: number | undefined
+	numberOfGuesses: number | null
 ): number => {
 	switch (numberOfGuesses) {
-		case undefined:
+		case null:
 			return 1;
 		case 10:
 			return 1.2;
@@ -161,9 +191,9 @@ const getNumberOfGuessesMultiplier = (
 };
 
 // timer is (currently) saved in minutes
-const getTimerMultiplier = (timer: number | undefined): number => {
+const getTimerMultiplier = (timer: number | null): number => {
 	switch (timer) {
-		case undefined:
+		case null:
 			return 1;
 		case 5:
 			return 1.2;
@@ -176,28 +206,78 @@ const getTimerMultiplier = (timer: number | undefined): number => {
 	}
 };
 
-// set game status to 'Finished', and remove current game from context (set to undefined),
-// which means a new game will be created when user starts playing again
-export const endGameHookIssue = (gameToSave?: Game) => {
-	const [game, setGame] = useGameContext();
-	if (gameToSave === undefined) {
-		gameToSave = game;
-	}
-
-	if (gameToSave !== undefined) {
-		gameToSave.status = 'Finished';
-		upsertGameDB(gameToSave, setGame);
-	}
-	setGame(undefined);
-};
-
 export const endGame = (
 	game: Game | undefined,
 	setGame: (value: React.SetStateAction<Game | undefined>) => void
 ) => {
 	if (game !== undefined) {
 		game.status = 'Finished';
+		console.log(`end game: ${JSON.stringify(game)}`);
 		upsertGameDB(game, setGame);
 	}
 	setGame(undefined);
+};
+
+export const endGameWithNavigate = (
+	game: Game | undefined,
+	setGame: (value: React.SetStateAction<Game | undefined>) => void,
+	navigate: NavigateFunction
+) => {
+	if (game !== undefined) {
+		game.status = 'Finished';
+		console.log(`end game: ${JSON.stringify(game)}`);
+		upsertGameDB(game, setGame);
+	}
+	navigate('/');
+	setGame(undefined);
+};
+
+export const getGameMode = (game: GameWithPlayer): string => {
+	let mode = '';
+
+	if (game.settings.timer === null && game.settings.numberOfGuesses === null) {
+		return 'endless';
+	}
+
+	switch (game.settings.timer) {
+		case null:
+			mode += 'infinite time';
+			break;
+		default:
+			mode += `${game.settings.timer} seconds`;
+			break;
+	}
+
+	mode += `, `;
+
+	switch (game.settings.numberOfGuesses) {
+		case null:
+			mode += 'infinite lives';
+			break;
+		default:
+			mode += `${game.settings.numberOfGuesses} lives`;
+			break;
+	}
+
+	return mode;
+};
+
+export const getCurrentRound = (game: Game | undefined): GameRound =>
+	game?.rounds.at(-1) ?? getEmptyRound();
+
+export const getRoundTimerDeadline = (
+	round: GameRound,
+	timerSettingsValue: number
+): Date => new Date(round.startedAt.getTime() + timerSettingsValue * 1000);
+
+// returns whether timer has run out for given round
+export const hasTimerRunOut = (
+	round: GameRound,
+	settings: GameSettings
+): boolean => {
+	if (settings.timer === null) {
+		return false;
+	}
+
+	return new Date() >= getRoundTimerDeadline(round, settings.timer);
 };
