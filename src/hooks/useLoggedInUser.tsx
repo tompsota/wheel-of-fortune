@@ -8,9 +8,9 @@ import {
 	useEffect,
 	useState
 } from 'react';
-import { User } from 'firebase/auth';
 
-import { onAuthChanged } from '../utils/firebase';
+import User from '../types/User';
+import { getUserDB, onAuthChanged } from '../utils/firebase';
 
 type UserState = [User | undefined, Dispatch<SetStateAction<User | undefined>>];
 const UserContext = createContext<UserState>(undefined as never);
@@ -30,12 +30,16 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	// // Setup onAuthChanged once when component is mounted
 	useEffect(() => {
-		onAuthChanged(u => {
-			setUser(u ?? undefined);
-			if (u === null) {
+		onAuthChanged(authUser => {
+			if (authUser === null) {
+				setUser(undefined);
 				localStorage.removeItem('user');
 			} else {
-				localStorage.setItem('user', JSON.stringify(u));
+				(async () => {
+					const user = await getUserDB(authUser);
+					setUser(user);
+					localStorage.setItem('user', JSON.stringify(user));
+				})();
 			}
 		});
 	}, []);

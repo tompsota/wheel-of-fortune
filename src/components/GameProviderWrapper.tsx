@@ -25,7 +25,7 @@ export const GameProviderWrapper: FC<PropsWithChildren> = ({ children }) => {
 
 	const user = useLoggedInUser();
 	const [_, setGameSettings] = useGameSettingsContext();
-	const game = getPlayersGameInProgress(user?.uid);
+	const game = getPlayersGameInProgress(user?.authUser.uid);
 
 	const gameState = useState<Game | undefined>(game);
 	const [_game, setGame] = gameState;

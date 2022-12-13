@@ -295,7 +295,7 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
     )`
 						}}
 					>
-						<Typography>{user?.displayName ?? 'Guest'}</Typography>
+						<Typography>{user?.nickname ?? 'Guest'}</Typography>
 						{displayInfo && timer && <Typography>{timer}s</Typography>}
 						{displayInfo && (
 							<Typography>Level {game?.rounds.length}</Typography>

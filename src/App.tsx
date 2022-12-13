@@ -44,8 +44,7 @@ const App = () => {
 												<Route path="/" element={<Home />} />
 												<Route path="/play" element={<Play />} />
 												<Route path="/leaderboard" element={<Leaderboard />} />
-												{/* change /about to /<...> ? */}
-												<Route path="/about" element={<InfoSettings />} />
+												<Route path="/settings" element={<InfoSettings />} />
 												<Route path="/login" element={<Login />} />
 												<Route path="/logout" element={<Logout />} />
 												<Route path="*" element={<NotFound />} />

@@ -6,7 +6,7 @@ import {
 	signInWithEmailAndPassword,
 	signOut as authSignOut,
 	onAuthStateChanged,
-	User,
+	User as AuthUser,
 	signInWithPopup,
 	GoogleAuthProvider
 } from 'firebase/auth';
@@ -16,6 +16,8 @@ import {
 	CollectionReference,
 	doc,
 	DocumentReference,
+	getDoc,
+	getDocs,
 	getFirestore,
 	limit,
 	orderBy,
@@ -28,9 +30,11 @@ import {
 import BoardDto from '../models/BoardDto';
 import GameDto from '../models/GameDto';
 import GameRoundDto from '../models/GameRoundDto';
+import UserDto from '../models/UserDto';
 import Board from '../types/Board';
 import Game from '../types/Game';
 import GameRound from '../types/GameRound';
+import User from '../types/User';
 
 // Initialize Firebase
 initializeApp({
@@ -58,7 +62,7 @@ export const signIn = (email: string, password: string) =>
 export const signOut = () => authSignOut(auth);
 
 // Subscribe to auth state changes
-export const onAuthChanged = (callback: (u: User | null) => void) =>
+export const onAuthChanged = (callback: (u: AuthUser | null) => void) =>
 	onAuthStateChanged(auth, callback);
 
 const provider = new GoogleAuthProvider();
@@ -143,7 +147,7 @@ export const upsertGameDB = (
 			setGame(game);
 		});
 	} else {
-		setDoc(gameDocument(game.id), gameToDto(game)); // is game.id saved as an attribute?
+		setDoc(gameDocument(game.id), gameToDto(game));
 	}
 };
 
@@ -155,7 +159,7 @@ export const upsertGameDB = (
 //   - because ideally we only want to fetch from DB at the beginning (at the mount of GameContextProvider),
 //     and update the GameContext manually
 export const getPlayersGameInProgress = (
-	playerId: User['uid'] | undefined
+	playerId: AuthUser['uid'] | undefined
 ): Game | undefined => {
 	playerId = playerId ?? '0';
 	const lastGameQuery = query(
@@ -198,7 +202,7 @@ export const getPlayersGameInProgress = (
 };
 
 export const getPlayersGameInProgressTest = (
-	playerId: User['uid'] | undefined,
+	playerId: AuthUser['uid'] | undefined,
 	setGame: (value: React.SetStateAction<Game | undefined>) => void
 ) => {
 	const lastGameQuery = query(
@@ -245,4 +249,84 @@ export const getPlayersGameInProgressTest = (
 	console.log(`returning recent game: ${JSON.stringify(game)}`);
 	setGame(game);
 	// return game;
+};
+
+export const usersCollection = collection(
+	db,
+	'users'
+) as CollectionReference<UserDto>;
+
+export const userDocument = (id: string) =>
+	doc(db, 'users', id) as DocumentReference<UserDto>;
+
+// export const getUserDB = (authUser: AuthUser): User => ({
+// 	...userDocument(authUser.uid),
+// });
+
+export const getUserDB = async (authUser: AuthUser): Promise<User> => {
+	const userDoc = userDocument(authUser.uid);
+	const docSnap = await getDoc(userDocument(authUser.uid));
+
+	if (docSnap.exists()) {
+		return { ...docSnap.data(), authUser };
+	}
+
+	const userDto = {
+		nickname: authUser.displayName ?? authUser.email ?? 'Anonymous user',
+		avatarUrl:
+			authUser.photoURL ??
+			'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg'
+	};
+	await setDoc(userDoc, userDto);
+	return { ...userDto, authUser };
+};
+
+// const userDocRef =
+//    const doc = await userDocRef.get();
+//    if (!doc.exists) {
+//      console.log('No such document exista!');
+//    } else {
+//      console.log('Document data:', doc.data());
+//    }
+
+export const getPlayersGameInProgressAsync = async (
+	playerId: AuthUser['uid'] | undefined
+): Promise<Game | undefined> => {
+	const lastGameQuery = query(
+		gamesCollection,
+		where('playerId', '==', playerId),
+		orderBy('startedAt', 'desc'),
+		limit(1)
+	);
+
+	// we also need to get document.id and assign to game.id ?
+	// const { data, status, error } = useFirestoreQuery<Game>(lastGameQuery);
+	// if (status === 'success' && (data as Game).status === 'InProgress') {
+	// 	return data;
+	// }
+
+	// const { data, status, error } = useFirestoreQuery(['lastPlayerGame'], lastGameQuery);
+
+	const querySnapshot = await getDocs(lastGameQuery);
+
+	if (querySnapshot.empty) {
+		return undefined;
+	}
+
+	const games = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+	// console.log(`fetched player's games: ${JSON.stringify(games)}`);
+
+	if (games.length === 0) {
+		return undefined;
+		// return undefined;
+	}
+
+	const game = gameFromDto(games[0]);
+	if (game.status === 'Finished') {
+		return undefined;
+		// return undefined;
+	}
+
+	console.log(`returning recent game: ${JSON.stringify(game)}`);
+	return game;
 };

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { User } from 'firebase/auth';
 import React from 'react';
 import wrap from 'word-wrap';
 
@@ -11,6 +10,7 @@ import Game from '../types/Game';
 import GameRound from '../types/GameRound';
 import GameSettings from '../types/GameSettings';
 import PhraseData from '../types/PhraseData';
+import User from '../types/User';
 
 import { upsertGameDB } from './firebase';
 
@@ -70,7 +70,7 @@ export const getEmptyGameFrom = (
 	settings: GameSettings
 ): Game => ({
 	// id: '',
-	playerId: user?.uid ?? 'anonymousUserId', // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
+	playerId: user?.authUser.uid ?? 'anonymousUserId', // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
 	status: 'InProgress',
 	score: 0,
 	rounds: [getEmptyRound(1, settings)],
@@ -83,7 +83,7 @@ export const getEmptyGameFromAsync = async (
 	settings: GameSettings
 ): Promise<Game> => ({
 	// id: '',
-	playerId: user?.uid ?? '',
+	playerId: user?.authUser.uid ?? '',
 	status: 'InProgress',
 	score: 0,
 	rounds: [await getEmptyRoundAsync(1, settings)],
