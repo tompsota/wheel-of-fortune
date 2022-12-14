@@ -31,8 +31,6 @@ const GameSettings: FC = () => {
 		localStorage.setItem('gamesettings', JSON.stringify(newSettings));
 
 		if (game !== undefined) {
-			// TODO: probably change text 'Settings have been updated.' or something,
-			//       inform user that his game will end if he changes settings (?) - outside of this snackbar
 			enqueueSnackbar(
 				'Your old game has been submitted. New game will have these settings.',
 				{
@@ -58,7 +56,6 @@ const GameSettings: FC = () => {
 		const numberOfGuesses = value === 0 ? null : value;
 		const newSettings = { ...gameSettings, numberOfGuesses };
 		settingsChangedHelper(newSettings);
-		// enqueueSnackbar("Updated settings won't be applied to the current game.");
 	};
 
 	const onTimerChanged = (_e: Event, value: number | number[], _a: number) => {
@@ -86,7 +83,7 @@ const GameSettings: FC = () => {
 					display: 'flex',
 					justifyContent: 'space-between',
 					py: '0.5rem',
-					px: '2rem',
+					px: '1.5rem',
 					background: theme.palette.backgroundDarker
 				}}
 			>

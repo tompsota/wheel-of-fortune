@@ -2,10 +2,6 @@
 	animation-duration: 3s;
 }
 
-/* .rotate:active {
-	animation-duration: 9999s;
-} */
-
 @keyframes rotation {
 	from {
 		transform: rotate(0deg);

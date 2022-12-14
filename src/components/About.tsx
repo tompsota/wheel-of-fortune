@@ -47,7 +47,13 @@ const About: FC = () => {
 			</Box>
 
 			<Collapse in={settingsOpen} timeout="auto" unmountOnExit>
-				TBD
+				<Stack sx={{ mx: '2rem', my: '1rem' }}>
+					<Typography>This is Wheel of Fortune! 🥳</Typography>
+					<br />
+					<Typography variant="caption">
+						Created by Michal Salasek and Tomas Psota for PV247 @FI MUNI
+					</Typography>
+				</Stack>
 			</Collapse>
 		</Stack>
 	);

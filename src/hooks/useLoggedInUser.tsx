@@ -30,9 +30,7 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	// // Setup onAuthChanged once when component is mounted
 	useEffect(() => {
-		console.log('UserProvider - on mount');
 		onAuthChanged(authUser => {
-			console.log('auth changed');
 			if (authUser === null) {
 				setUser(undefined);
 				localStorage.removeItem('user');

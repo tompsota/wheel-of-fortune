@@ -17,8 +17,6 @@ type Props = {
 	onClick: () => void;
 };
 
-//TODO ak by sme chceli vyraznejsi styling aktivnych tabov: https://codesandbox.io/s/listitem-selected-and-hover-3bp7r?fontsize=14&hidenavigation=1&theme=dark&file=/demo.js
-
 const AppDrawerListItem: FC<Props> = ({
 	text,
 	open,

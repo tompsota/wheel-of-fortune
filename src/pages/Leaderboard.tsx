@@ -2,13 +2,7 @@ import { Stack, Typography } from '@mui/material';
 import { onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
-import Game from '../types/Game';
-import {
-	gameFromDto,
-	gamesCollection,
-	getUserById,
-	getUser
-} from '../utils/firebase';
+import { gameFromDto, gamesCollection, getUserById } from '../utils/firebase';
 import LeaderboardTable from '../components/LeaderboardTable';
 import GameWithPlayer from '../types/GameWithPlayer';
 
@@ -39,7 +33,7 @@ const Leaderboard = () => {
 				variant="h3"
 				sx={{ alignSelf: 'center', mt: '1rem', mb: '2rem' }}
 			>
-				Leaderboard
+				Recent games
 			</Typography>
 			{games === undefined || games.length === 0 ? (
 				<Typography sx={{ alignSelf: 'center', mt: '1rem', mb: '2rem' }}>

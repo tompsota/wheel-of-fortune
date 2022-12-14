@@ -7,7 +7,6 @@ type Props = {
 	tile: BoardTile;
 };
 
-// rename one of the Tiles to 'BoardTile' ?
 const Tile: FC<Props> = ({ tile }) => {
 	const theme = useTheme();
 

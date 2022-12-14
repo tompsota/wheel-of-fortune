@@ -17,45 +17,42 @@ import { GameProvider } from './hooks/useGame';
 import { GameSettingsProvider } from './hooks/useGameSettings';
 import InfoSettings from './pages/InfoSettings';
 
-const App = () => {
-	const _tmp = 0; //TODO zmazat, je to tu aby nepindal linter
-	return (
-		<ThemeProvider theme={theme}>
-			<SnackbarProvider
-				maxSnack={3}
-				anchorOrigin={{
-					vertical: 'top',
-					horizontal: 'right'
-				}}
-				autoHideDuration={1500}
-				preventDuplicate
-				hideIconVariant
-			>
-				<QueryClientProvider client={new QueryClient()}>
-					<UserProvider>
-						<GameSettingsProvider>
-							<GameProvider>
-								<BrowserRouter>
-									<CssBaseline />
-									<AppLayout>
-										<Routes>
-											<Route path="/" element={<Home />} />
-											<Route path="/play" element={<Play />} />
-											<Route path="/leaderboard" element={<Leaderboard />} />
-											<Route path="/settings" element={<InfoSettings />} />
-											<Route path="/login" element={<Login />} />
-											<Route path="/logout" element={<Logout />} />
-											<Route path="*" element={<NotFound />} />
-										</Routes>
-									</AppLayout>
-								</BrowserRouter>
-							</GameProvider>
-						</GameSettingsProvider>
-					</UserProvider>
-				</QueryClientProvider>
-			</SnackbarProvider>
-		</ThemeProvider>
-	);
-};
+const App = () => (
+	<ThemeProvider theme={theme}>
+		<SnackbarProvider
+			maxSnack={3}
+			anchorOrigin={{
+				vertical: 'top',
+				horizontal: 'right'
+			}}
+			autoHideDuration={1500}
+			preventDuplicate
+			hideIconVariant
+		>
+			<QueryClientProvider client={new QueryClient()}>
+				<UserProvider>
+					<GameSettingsProvider>
+						<GameProvider>
+							<BrowserRouter>
+								<CssBaseline />
+								<AppLayout>
+									<Routes>
+										<Route path="/" element={<Home />} />
+										<Route path="/play" element={<Play />} />
+										<Route path="/leaderboard" element={<Leaderboard />} />
+										<Route path="/settings" element={<InfoSettings />} />
+										<Route path="/login" element={<Login />} />
+										<Route path="/logout" element={<Logout />} />
+										<Route path="*" element={<NotFound />} />
+									</Routes>
+								</AppLayout>
+							</BrowserRouter>
+						</GameProvider>
+					</GameSettingsProvider>
+				</UserProvider>
+			</QueryClientProvider>
+		</SnackbarProvider>
+	</ThemeProvider>
+);
 
 export default App;

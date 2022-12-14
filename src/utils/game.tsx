@@ -4,7 +4,6 @@ import wrap from 'word-wrap';
 import { NavigateFunction } from 'react-router-dom';
 
 import { useGameSettings } from '../hooks/useGameSettings';
-import { useGameContext } from '../hooks/useGame';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import Board, { BoardRow, BoardTile } from '../types/Board';
 import Game from '../types/Game';
@@ -15,29 +14,6 @@ import User from '../types/User';
 import GameWithPlayer from '../types/GameWithPlayer';
 
 import { upsertGameDB } from './firebase';
-
-// export const getEmptyRound = (
-// 	roundNumber = 1,
-// 	settings?: GameSettings,
-// 	phrase = ''
-// ): GameRound => {
-// 	const _tmp = 0;
-// 	// const game = useGame();
-// 	// const phrase = await getPhraseFromAPI();
-
-// 	return {
-// 		board: createBoard(phrase),
-// 		status: 'BeforeInit',
-// 		roundNumber,
-// 		guessedLetters: [],
-// 		score: 0,
-// 		phrase,
-// 		phraseAuthor: 'Unknown',
-// 		guessesLeft: settings?.numberOfGuesses ?? null,
-// 		timeLeftOnTimer: settings?.timer ?? null,
-// 		startedAt: new Date()
-// 	};
-// };
 
 export const getPlaceholderRound = (
 	roundNumber = 1,
@@ -78,30 +54,11 @@ export const getEmptyRoundAsync = async (
 	};
 };
 
-// export const getEmptyGame = (): Game => {
-// 	const user = useLoggedInUser();
-// 	const settings = useGameSettings();
-// 	return getEmptyGameFrom(user, settings);
-// };
-
 export const getEmptyGameAsync = async (): Promise<Game> => {
 	const user = useLoggedInUser();
 	const settings = useGameSettings();
 	return getEmptyGameFromAsync(user, settings);
 };
-
-// export const getEmptyGameFrom = (
-// 	user: User | undefined,
-// 	settings: GameSettings
-// ): Game => ({
-// 	// id: '',
-// 	playerId: user?.id ?? null, // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
-// 	status: 'InProgress',
-// 	score: 0,
-// 	rounds: [getEmptyRound(1, settings)],
-// 	settings,
-// 	startedAt: new Date()
-// });
 
 export const getEmptyGameFromAsync = async (
 	user: User | undefined,
@@ -118,6 +75,7 @@ export const getEmptyGameFromAsync = async (
 const alphaChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(
 	''
 );
+
 export const isAlpha = (c: string): boolean => alphaChars.includes(c);
 
 export const isPhraseSolved = (board: Board): boolean =>

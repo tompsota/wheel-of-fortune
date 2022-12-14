@@ -1,14 +1,13 @@
-import { FC, useEffect, useState } from 'react';
-import { duration, Stack, Typography, useTheme } from '@mui/material';
+import { FC } from 'react';
+import { Stack, Typography, useTheme } from '@mui/material';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import Countdown, { CountdownTimeDelta } from 'react-countdown';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 
 import BoardState, { BoardRow } from '../types/Board';
-import { updateCurrentRoundGame, useGameContext } from '../hooks/useGame';
+import { useGameContext } from '../hooks/useGame';
 import {
-	endGame,
 	endGameWithNavigate,
 	getCurrentRound,
 	getRoundTimerDeadline
@@ -26,14 +25,6 @@ const Board: FC<Props> = ({ board }) => {
 	const round = getCurrentRound(game);
 	const navigate = useNavigate();
 	const { enqueueSnackbar } = useSnackbar();
-	// const [timerSeconds, setTimerSeconds] = useState(round.timeLeftOnTimer ?? 0);
-
-	// useEffect(() => () => {
-	// 	round.timeLeftOnTimer = timerSeconds;
-	// 	if (game !== undefined) {
-	// 		setGame(updateCurrentRoundGame(game, round));
-	// 	}
-	// });
 
 	const boardRow = (row: BoardRow, i: number) => (
 		<Stack
@@ -47,16 +38,7 @@ const Board: FC<Props> = ({ board }) => {
 		</Stack>
 	);
 
-	// const onTick = ({ minutes, seconds }: CountdownTimeDelta) => {
-	// 	round.timeLeftOnTimer = minutes * 60 + seconds;
-	// 	if (game !== undefined) {
-	// 		setGame(updateCurrentRoundGame(game, round));
-	// 	}
-	// };
-
 	const renderer = ({ minutes, seconds, completed }: CountdownTimeDelta) => {
-		// setTimerSeconds(minutes * 60 + seconds);
-
 		if (completed) {
 			return (
 				<Typography color={theme.palette.info.main}>Time&apos;s up!</Typography>
@@ -70,11 +52,6 @@ const Board: FC<Props> = ({ board }) => {
 		}
 	};
 
-	// here, we would like to have a list of rows, where row is a list of tiles
-	// problem: it's much easier to work with flat/1D array,
-	//   but for displaying, we want 2D array
-	// transform phrase directly into 2D array, and just work with it
-	// or work with 1D array and create a function, that returns 2D array from 1D array ?
 	return (
 		<Stack
 			sx={{
@@ -136,12 +113,9 @@ const Board: FC<Props> = ({ board }) => {
 						</Typography>
 						{game?.settings.timer ? (
 							<Countdown
-								// date={Date.now() + (round.timeLeftOnTimer ?? 0) * 1000}
 								date={getRoundTimerDeadline(round, game.settings.timer)}
 								renderer={renderer}
 								onComplete={() => {
-									// endGameWithNavigate(game, setGame);
-									console.log('Board timer - onComplete');
 									endGameWithNavigate(game, setGame, navigate);
 									enqueueSnackbar(
 										'You have run out of time! Your game has been uploaded to the leaderboard.',
@@ -149,10 +123,8 @@ const Board: FC<Props> = ({ board }) => {
 											autoHideDuration: 7500
 										}
 									);
-									// navigate('/');
 								}}
-								// onTick={onTick}
-							/> //TODO set date to timestamp from DB
+							/>
 						) : (
 							<AllInclusiveIcon color="info" />
 						)}

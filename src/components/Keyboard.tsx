@@ -1,8 +1,4 @@
 import { Stack } from '@mui/material';
-import { useEffect, useState } from 'react';
-
-import useGame from '../hooks/useGame';
-import { getCurrentRound } from '../utils/game';
 
 import KeyboardButton from './KeyboardButton';
 
@@ -13,33 +9,10 @@ const simulateKeyPress = (key: string) => {
 const Keyboard = () => {
 	console.log('keyboard rendered');
 
-	const game = useGame();
-	const round = getCurrentRound(game);
-
-	// const [rround, setRound] = useState<GameRound>();
-
-	// const [letters, setLetters] = useState<string[]>(round.guessedLetters);
-
-	// useEffect(() => {
-	// 	console.log('KEYBOARD: round.guessedLetters useEffect');
-	// 	setLetters(round.guessedLetters);
-	// }, [round.guessedLetters]);
-
-	// useEffect(() => {
-	// 	console.log('KEYBOARD: round useEffect');
-	// }, [round]);
-
-	// useEffect(() => {
-	// 	console.log('KEYBOARD: game useEffect');
-	// 	const rrround = getCurrentRound(game);
-	// 	setLetters(rrround.guessedLetters);
-	// }, [game]);
-
 	const createKeyboardButton = (key: string) => (
 		<KeyboardButton
 			key={key}
 			name={key}
-			// isDisabled={letters.includes(key)}
 			keyPressAction={() => simulateKeyPress(key)}
 		/>
 	);

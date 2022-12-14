@@ -41,14 +41,6 @@ const createData = (
 	date: string
 ) => ({ name, totalPoints, mode, date });
 
-const rows = [
-	createData('Frozen yoghurt', 159, 'mode', Date.now().toLocaleString()),
-	createData('Ice cream sandwich', 237, 'mode', Date.now().toLocaleString()),
-	createData('Eclair', 262, 'mode', Date.now().toLocaleString()),
-	createData('Cupcake', 305, 'mode', Date.now().toLocaleString()),
-	createData('Gingerbread', 356, 'mode', Date.now().toLocaleString())
-];
-
 type Props = {
 	games: GameWithPlayer[];
 };
@@ -96,10 +88,7 @@ const LeaderboardTable: React.FC<Props> = ({ games }) => (
 							{getGameMode(game)}
 						</StyledTableCell>
 						<StyledTableCell align="center">
-							{/* {game.startedAt.toLocaleDateString()} */}
-							{/* ??? getTime() is not a function */}
 							{game.startedAt.toString()}
-							{/* {new Date(game.startedAt.getTime()).toDateString()} */}
 						</StyledTableCell>
 					</StyledTableRow>
 				))}

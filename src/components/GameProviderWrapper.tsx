@@ -1,7 +1,3 @@
-// necessary, so that getPlayersGameInProgress() is not placed inside GameProvider
-
-// TODO: delete whole component
-
 import {
 	FC,
 	PropsWithChildren,
@@ -18,8 +14,7 @@ import useLoggedInUser from '../hooks/useLoggedInUser';
 import Game from '../types/Game';
 import {
 	getPlayersGameInProgress,
-	getPlayersGameInProgressAsync,
-	upsertGameDB
+	getPlayersGameInProgressAsync
 } from '../utils/firebase';
 
 type GameState = [Game | undefined, Dispatch<SetStateAction<Game | undefined>>];
@@ -49,7 +44,6 @@ export const GameProviderWrapperTest: FC<PropsWithChildren> = ({
 			console.log(`GameProviderWRAPPER - setting game`);
 			setGame(game);
 		}
-		// setGame(game);
 	}, [game]);
 
 	return (
@@ -64,31 +58,19 @@ export const GameProviderWrapper: FC<PropsWithChildren> = ({ children }) => {
 
 	const user = useLoggedInUser();
 	const [_, setGameSettings] = useGameSettingsContext();
-	// const game = getPlayersGameInProgress(user?.authUser.uid);
 
 	const gameState = useState<Game | undefined>();
 	const [_game, setGame] = gameState;
 
 	useEffect(() => {
-		console.log('GameProviderWRAPPER - useEffect - onMount');
 		(async () => {
-			console.log(`GameProviderWRAPPER - useEffect userId: ${user?.id}`);
 			const game = await getPlayersGameInProgressAsync(user?.id);
-			console.log(`GameProviderWRAPPER - useEffect game: ${game}`);
 			setGame(game);
 			if (game !== undefined) {
 				setGameSettings(game?.settings);
 			}
 		})();
 	}, []);
-
-	// useEffect(() => {
-	// 	if (game !== undefined && _game === undefined) {
-	// 		console.log(`GameProviderWRAPPER - setting game`);
-	// 		setGame(game);
-	// 	}
-	// 	// setGame(game);
-	// }, [game]);
 
 	return (
 		<GameContextWrapper.Provider value={gameState}>

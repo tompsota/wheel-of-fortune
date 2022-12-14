@@ -292,14 +292,9 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 						}}
 					>
 						<Typography>{user?.nickname ?? 'Guest'}</Typography>
-						{/* {displayInfo && timer && <Typography>{timer}s</Typography>} */}
 						{displayInfo && (
 							<Typography>Level {game?.rounds.length}</Typography>
 						)}
-						{/* {displayInfo && guessesLeft && (
-							<Typography>Guesses left: {guessesLeft}</Typography>
-						)} */}
-						{/* <Typography>Score: {getScore(game)}</Typography> */}
 						{displayInfo && <Typography>{scoreInfo}</Typography>}
 					</Box>
 				</Box>

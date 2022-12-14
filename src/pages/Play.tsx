@@ -1,8 +1,8 @@
-import { Button, Divider, Grid, Snackbar, Typography } from '@mui/material';
+import { Button, Divider, Grid, Snackbar } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useGameSettings } from '../hooks/useGameSettings';
 import {
@@ -12,18 +12,13 @@ import {
 } from '../hooks/useGame';
 import useLoggedInUser from '../hooks/useLoggedInUser';
 import {
-	createBoard,
-	endGame,
 	endGameWithNavigate,
 	getCurrentRound,
 	getEmptyGameFromAsync,
 	getMultiplier,
-	getPhrase,
-	getPlaceholderRound,
 	getUpdatedBoard,
 	isAlpha,
 	isPhraseSolved
-	// saveGame,
 } from '../utils/game';
 import Board from '../components/Board';
 import Keyboard from '../components/Keyboard';
@@ -38,8 +33,6 @@ const Play = () => {
 	const [game, setGame] = useGameContext();
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-	// const newGame = getEmptyGame();
-
 	const round = getCurrentRound(game);
 
 	const incorrectLetterPointValue = 20;
@@ -49,9 +42,8 @@ const Play = () => {
 		await onLoadNextRoundAsync();
 		setSnackbarOpen(false);
 		if (game) {
-			upsertGameDB(game, setGame);
+			upsertGameDB(game);
 		}
-		onLoadNextRound();
 	};
 
 	const snackbarAction = (
@@ -120,8 +112,6 @@ const Play = () => {
 	};
 
 	const onLetterGuessed = (letter: string) => {
-		// console.log(`round: ${JSON.stringify(round)}`);
-
 		if (game === undefined) {
 			return;
 		}
@@ -160,8 +150,6 @@ const Play = () => {
 
 		// >>> after a successful round, we save the game (still InProgress) to DB
 		// ... new round is added to the game only upon player clicking 'Next level'
-		// TODO: check if it works correctly, if player leaves 'Play' after guessing phrase,
-		//       but before clicking 'Next play'
 		if (isPhraseSolved(round.board)) {
 			console.log('phrase solved');
 			round.status = 'Pass';

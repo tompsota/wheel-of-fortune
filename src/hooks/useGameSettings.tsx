@@ -34,12 +34,6 @@ export const GameSettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	const gameSettingsState = useState<GameSettings>(gameSettings);
 
-	// TODO: remove useEffect
-	useEffect(() => {
-		console.log('GameSettings Provider - on mount');
-		// if something should be done once upon mounting GameProvider component
-	}, []);
-
 	return (
 		<GameSettingsContext.Provider value={gameSettingsState}>
 			{children}

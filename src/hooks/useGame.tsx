@@ -9,14 +9,9 @@ import {
 	useState
 } from 'react';
 
-import { useGameInProgress } from '../components/GameProviderWrapper';
 import Game from '../types/Game';
 import GameRound from '../types/GameRound';
-import {
-	getPlayersGameInProgress,
-	getPlayersGameInProgressAsync,
-	upsertGameDB
-} from '../utils/firebase';
+import { getPlayersGameInProgressAsync, upsertGameDB } from '../utils/firebase';
 import { getEmptyRoundAsync } from '../utils/game';
 
 import { useGameSettingsContext } from './useGameSettings';
@@ -26,8 +21,6 @@ type GameState = [Game | undefined, Dispatch<SetStateAction<Game | undefined>>];
 const GameContext = createContext<GameState>(undefined as never);
 
 export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
-	console.log('GameProvider - render');
-
 	const user = useLoggedInUser();
 	const [_, setGameSettings] = useGameSettingsContext();
 
@@ -35,11 +28,8 @@ export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [game, setGame] = gameState;
 
 	useEffect(() => {
-		console.log('GameProvider - on mount');
 		(async () => {
-			// console.log(`GameProvider - on mount - userId: ${user?.id}`);
 			const currentGame = await getPlayersGameInProgressAsync(user?.id);
-			console.log(`GameProvider - on mount - game: ${game}`);
 			setGame(currentGame);
 			if (currentGame !== undefined) {
 				setGameSettings(currentGame?.settings);
@@ -47,9 +37,7 @@ export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 		})();
 
 		const listener = (_e: Event) => {
-			console.log('onbeforeunload triggered');
 			if (game !== undefined) {
-				console.log(`onbeforeunload triggered - update game: ${game}`);
 				upsertGameDB(game);
 			}
 		};
