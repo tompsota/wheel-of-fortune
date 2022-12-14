@@ -16,7 +16,6 @@ const GameSettingsContext = createContext<GameSettingsState>(
 	undefined as never
 );
 
-// Wrapped context provider
 export const GameSettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 	console.log('GameSettings Provider - render');
 
@@ -26,7 +25,8 @@ export const GameSettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 	} as GameSettings;
 
 	const localStorageGameString = localStorage.getItem('gamesettings');
-	// We load (paused) game from local storage, or create a new game
+	// we load game settings from local storage, later they can be set according
+	// to a game in progress, if such a game exists
 	const gameSettings =
 		localStorageGameString === null
 			? defaultSettings
@@ -34,6 +34,7 @@ export const GameSettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	const gameSettingsState = useState<GameSettings>(gameSettings);
 
+	// TODO: remove useEffect
 	useEffect(() => {
 		console.log('GameSettings Provider - on mount');
 		// if something should be done once upon mounting GameProvider component

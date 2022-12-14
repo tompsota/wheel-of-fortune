@@ -1,9 +1,3 @@
-// import { Typography } from '@mui/material';
-
-// const Login = () => <Typography>Login component</Typography>;
-
-// export default Login;
-
 import { Button, Paper, TextField, Typography, useTheme } from '@mui/material';
 import { Box } from '@mui/system';
 import { FormEvent, useState } from 'react';
@@ -11,11 +5,9 @@ import { useNavigate } from 'react-router';
 
 import useField from '../hooks/useField';
 import usePageTitle from '../hooks/usePageTitle';
-// import { useTranslation } from '../hooks/useTranslation';
 import { googleSignInWithPopup, signIn, signUp } from '../utils/firebase';
 
 const Login = () => {
-	// const translate = useTranslation();
 	usePageTitle('Login');
 	const navigate = useNavigate();
 	const theme = useTheme();

@@ -23,7 +23,6 @@ import {
 	orderBy,
 	query,
 	setDoc,
-	Timestamp,
 	where
 } from 'firebase/firestore';
 
@@ -50,7 +49,6 @@ initializeApp({
 const auth = getAuth();
 
 // Sign up handler
-// TODO: create UserProfile
 export const signUp = (email: string, password: string) =>
 	createUserWithEmailAndPassword(auth, email, password);
 
@@ -66,7 +64,6 @@ export const onAuthChanged = (callback: (u: AuthUser | null) => void) =>
 	onAuthStateChanged(auth, callback);
 
 const provider = new GoogleAuthProvider();
-// TODO: create profile for first sign-in
 export const googleSignInWithPopup = () =>
 	signInWithPopup(auth, provider)
 		.then(result => {
@@ -127,23 +124,12 @@ const boardToDto = (board: Board): BoardDto =>
 		board.map((boardRow, index) => [index.toString(), boardRow])
 	);
 
-// export const saveGame = (game: Game) => {
-// 	const originalStatus = game.status;
-// 	// localStorage.setItem('game', JSON.stringify(game));
-// 	game.status = originalStatus;
-// };
-
-// TODO: change to async
-// could get id as well
-export const upsertGameDB = (
-	game: Game,
-	setGame: (value: React.SetStateAction<Game | undefined>) => void
-) => {
+// TODO: change to async ?
+export const upsertGameDB = (game: Game) => {
 	if (game.id === undefined) {
 		addDoc(gamesCollection, gameToDto(game)).then(doc => {
 			game.id = doc.id;
 			console.log(`game created, id: ${doc.id}`);
-			// setGame(game);
 		});
 	} else {
 		setDoc(gameDocument(game.id), gameToDto(game));
@@ -153,11 +139,6 @@ export const upsertGameDB = (
 
 // we get player's last game - if the status === InProgress, it is the current unfinished game
 //  - game is updated after each successful round (InProgress), or after the game has finished
-// CURRENT (POSSIBLE) ISSUE: when we update gamesCollection (add a round / end game and create empty one),
-//   does the change force a re-render? or since we don't use subscription, the query only gets evaluated once,
-//   and the re-render only happens when status changes from loading to success?
-//   - because ideally we only want to fetch from DB at the beginning (at the mount of GameContextProvider),
-//     and update the GameContext manually
 export const getPlayersGameInProgress = (
 	playerId: AuthUser['uid'] | undefined
 ): Game | undefined => {
@@ -169,14 +150,6 @@ export const getPlayersGameInProgress = (
 		limit(1)
 	);
 
-	// we also need to get document.id and assign to game.id ?
-	// const { data, status, error } = useFirestoreQuery<Game>(lastGameQuery);
-	// if (status === 'success' && (data as Game).status === 'InProgress') {
-	// 	return data;
-	// }
-
-	// const { data, status, error } = useFirestoreQuery(['lastPlayerGame'], lastGameQuery);
-
 	const queryResult = useFirestoreQuery(['lastPlayerGame'], lastGameQuery);
 
 	if (!queryResult.isSuccess) {
@@ -186,7 +159,6 @@ export const getPlayersGameInProgress = (
 	const snapshot = queryResult.data;
 
 	const games = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-	// console.log(`fetched player's games: ${JSON.stringify(games)}`);
 
 	if (games.length === 0) {
 		return undefined;
@@ -201,56 +173,6 @@ export const getPlayersGameInProgress = (
 	return game;
 };
 
-export const getPlayersGameInProgressTest = (
-	playerId: AuthUser['uid'] | undefined,
-	setGame: (value: React.SetStateAction<Game | undefined>) => void
-) => {
-	const lastGameQuery = query(
-		gamesCollection,
-		where('playerId', '==', playerId),
-		orderBy('startedAt', 'desc'),
-		limit(1)
-	);
-
-	// we also need to get document.id and assign to game.id ?
-	// const { data, status, error } = useFirestoreQuery<Game>(lastGameQuery);
-	// if (status === 'success' && (data as Game).status === 'InProgress') {
-	// 	return data;
-	// }
-
-	// const { data, status, error } = useFirestoreQuery(['lastPlayerGame'], lastGameQuery);
-
-	const queryResult = useFirestoreQuery(['lastPlayerGame'], lastGameQuery);
-
-	if (!queryResult.isSuccess) {
-		setGame(undefined);
-		return;
-		// return undefined;
-	}
-
-	const snapshot = queryResult.data;
-
-	const games = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-	// console.log(`fetched player's games: ${JSON.stringify(games)}`);
-
-	if (games.length === 0) {
-		setGame(undefined);
-		return;
-		// return undefined;
-	}
-
-	const game = gameFromDto(games[0]);
-	if (game.status === 'Finished') {
-		setGame(undefined);
-		return;
-		// return undefined;
-	}
-
-	// console.log(`returning recent game: ${JSON.stringify(game)}`);
-	setGame(game);
-	// return game;
-};
-
 export const usersCollection = collection(
 	db,
 	'users'
@@ -259,11 +181,7 @@ export const usersCollection = collection(
 export const userDocument = (id: string) =>
 	doc(db, 'users', id) as DocumentReference<UserDto>;
 
-// export const getUserDB = (authUser: AuthUser): User => ({
-// 	...userDocument(authUser.uid),
-// });
-
-export const getUserDB = async (authUser: AuthUser): Promise<User> => {
+export const getUser = async (authUser: AuthUser): Promise<User> => {
 	const userDoc = userDocument(authUser.uid);
 	const docSnap = await getDoc(userDoc);
 
@@ -282,7 +200,7 @@ export const getUserDB = async (authUser: AuthUser): Promise<User> => {
 	return { ...userDto, id: authUser.uid };
 };
 
-export const getUserByIdDB = async (userId: string): Promise<User> => {
+export const getUserById = async (userId: string): Promise<User> => {
 	const userDoc = userDocument(userId);
 	const docSnap = await getDoc(userDoc);
 
@@ -299,14 +217,6 @@ export const getUserByIdDB = async (userId: string): Promise<User> => {
 	};
 };
 
-// const userDocRef =
-//    const doc = await userDocRef.get();
-//    if (!doc.exists) {
-//      console.log('No such document exista!');
-//    } else {
-//      console.log('Document data:', doc.data());
-//    }
-
 export const getPlayersGameInProgressAsync = async (
 	playerId: AuthUser['uid'] | undefined
 ): Promise<Game | undefined> => {
@@ -321,14 +231,6 @@ export const getPlayersGameInProgressAsync = async (
 		limit(1)
 	);
 
-	// we also need to get document.id and assign to game.id ?
-	// const { data, status, error } = useFirestoreQuery<Game>(lastGameQuery);
-	// if (status === 'success' && (data as Game).status === 'InProgress') {
-	// 	return data;
-	// }
-
-	// const { data, status, error } = useFirestoreQuery(['lastPlayerGame'], lastGameQuery);
-
 	const querySnapshot = await getDocs(lastGameQuery);
 
 	if (querySnapshot.empty) {
@@ -336,17 +238,14 @@ export const getPlayersGameInProgressAsync = async (
 	}
 
 	const games = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-	// console.log(`fetched player's games: ${JSON.stringify(games)}`);
 
 	if (games.length === 0) {
 		return undefined;
-		// return undefined;
 	}
 
 	const game = gameFromDto(games[0]);
 	if (game.status === 'Finished') {
 		return undefined;
-		// return undefined;
 	}
 
 	// console.log(`returning recent game: ${JSON.stringify(game)}`);

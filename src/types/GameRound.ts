@@ -1,5 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
-
 import Board from './Board';
 
 type GameRound = {
@@ -10,12 +8,9 @@ type GameRound = {
 	phrase: string;
 	phraseAuthor: string;
 	guessedLetters: string[];
-	// duration: Timestamp;
 	startedAt: Date;
-	// finishedAt: Timestamp; // since game can be paused (soon TM), this can't be used to calculate duration)
-	// TODO: have to change ideally to null, since can't save undefined to DB
-	guessesLeft: number | null; // if we decide to add game settings
-	timeLeftOnTimer: number | null; // if we decide to add game settings
+	guessesLeft: number | null;
+	timeLeftOnTimer: number | null;
 };
 
 export default GameRound;

@@ -16,35 +16,33 @@ import GameWithPlayer from '../types/GameWithPlayer';
 
 import { upsertGameDB } from './firebase';
 
-export const getEmptyRound = (
-	roundNumber = 1,
-	settings?: GameSettings,
-	phrase = ''
-): GameRound => {
-	const _tmp = 0;
-	// const game = useGame();
-	// const phrase = await getPhraseFromAPI();
+// export const getEmptyRound = (
+// 	roundNumber = 1,
+// 	settings?: GameSettings,
+// 	phrase = ''
+// ): GameRound => {
+// 	const _tmp = 0;
+// 	// const game = useGame();
+// 	// const phrase = await getPhraseFromAPI();
 
-	return {
-		board: createBoard(phrase),
-		status: 'BeforeInit',
-		roundNumber,
-		guessedLetters: [],
-		score: 0,
-		phrase,
-		phraseAuthor: 'Unknown',
-		guessesLeft: settings?.numberOfGuesses ?? null,
-		timeLeftOnTimer: settings?.timer ?? null,
-		startedAt: new Date()
-	};
-};
+// 	return {
+// 		board: createBoard(phrase),
+// 		status: 'BeforeInit',
+// 		roundNumber,
+// 		guessedLetters: [],
+// 		score: 0,
+// 		phrase,
+// 		phraseAuthor: 'Unknown',
+// 		guessesLeft: settings?.numberOfGuesses ?? null,
+// 		timeLeftOnTimer: settings?.timer ?? null,
+// 		startedAt: new Date()
+// 	};
+// };
 
 export const getPlaceholderRound = (
 	roundNumber = 1,
 	settings?: GameSettings
 ): GameRound => {
-	// const game = useGame();
-	// const phrase = await getPhraseFromAPI();
 	const phrase = '        ';
 	return {
 		board: createBoard(phrase),
@@ -80,11 +78,11 @@ export const getEmptyRoundAsync = async (
 	};
 };
 
-export const getEmptyGame = (): Game => {
-	const user = useLoggedInUser();
-	const settings = useGameSettings();
-	return getEmptyGameFrom(user, settings);
-};
+// export const getEmptyGame = (): Game => {
+// 	const user = useLoggedInUser();
+// 	const settings = useGameSettings();
+// 	return getEmptyGameFrom(user, settings);
+// };
 
 export const getEmptyGameAsync = async (): Promise<Game> => {
 	const user = useLoggedInUser();
@@ -92,24 +90,23 @@ export const getEmptyGameAsync = async (): Promise<Game> => {
 	return getEmptyGameFromAsync(user, settings);
 };
 
-export const getEmptyGameFrom = (
-	user: User | undefined,
-	settings: GameSettings
-): Game => ({
-	// id: '',
-	playerId: user?.id ?? null, // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
-	status: 'InProgress',
-	score: 0,
-	rounds: [getEmptyRound(1, settings)],
-	settings,
-	startedAt: new Date()
-});
+// export const getEmptyGameFrom = (
+// 	user: User | undefined,
+// 	settings: GameSettings
+// ): Game => ({
+// 	// id: '',
+// 	playerId: user?.id ?? null, // TODO: create user for anonymous players? so that it can be saved and displayed on leaderboard
+// 	status: 'InProgress',
+// 	score: 0,
+// 	rounds: [getEmptyRound(1, settings)],
+// 	settings,
+// 	startedAt: new Date()
+// });
 
 export const getEmptyGameFromAsync = async (
 	user: User | undefined,
 	settings: GameSettings
 ): Promise<Game> => ({
-	// id: '',
 	playerId: user?.id ?? null,
 	status: 'InProgress',
 	score: 0,
@@ -128,23 +125,11 @@ export const isPhraseSolved = (board: Board): boolean =>
 		row.every(field => field.hidden === false || field.value === undefined)
 	);
 
-// const transformedBoardState = (board: BoardState)
-
-// uncover letters
-// TODO: in general, make sure uppercase/lowercase is handled properly
-// const getUpdatedBoard = (board: BoardState, letter: string): BoardState => {
-// 	const updatedBoard = board.map(field =>
-// 		field.value === letter ? { ...field, hidden: false } : field
-// 	);
-// 	return updatedBoard;
-// };
-
 export const getUpdatedBoard = (board: Board, letter: string): Board =>
 	board.map(row => getUpdatedRow(row, letter));
 
 const getUpdatedRow = (row: BoardRow, letter: string): BoardRow =>
 	row.map(field =>
-		// field.hidden || field.value === undefined || field.value !== letter
 		field.value === undefined || field.value !== letter
 			? field
 			: { ...field, hidden: false }
@@ -152,9 +137,6 @@ const getUpdatedRow = (row: BoardRow, letter: string): BoardRow =>
 
 const getPhraseChunks = (phrase: string) =>
 	wrap(phrase.replace(/\.$/, ''), { width: 15 }).split('\n');
-// TODO: check if this change is valid
-// the original regex removes dot at the end (?), this one removes all non-alpha/space characters
-// wrap(phrase.replace(/[^a-zA-Z ]/g, ''), { width: 15 }).split('\n');
 
 export const createBoard = (phrase: string): Board =>
 	getPhraseChunks(phrase).map(word =>
@@ -190,16 +172,16 @@ const getNumberOfGuessesMultiplier = (
 	}
 };
 
-// timer is (currently) saved in minutes
+// timer is (currently) saved in seconds
 const getTimerMultiplier = (timer: number | null): number => {
 	switch (timer) {
 		case null:
 			return 1;
-		case 5:
+		case 5 * 60:
 			return 1.2;
-		case 3:
+		case 3 * 60:
 			return 1.5;
-		case 1:
+		case 1 * 60:
 			return 2.0;
 		default:
 			return 1;
@@ -213,7 +195,7 @@ export const endGame = (
 	if (game !== undefined) {
 		game.status = 'Finished';
 		console.log(`end game: ${JSON.stringify(game)}`);
-		upsertGameDB(game, setGame);
+		upsertGameDB(game);
 	}
 	setGame(undefined);
 };
@@ -226,7 +208,7 @@ export const endGameWithNavigate = (
 	if (game !== undefined) {
 		game.status = 'Finished';
 		console.log(`end game: ${JSON.stringify(game)}`);
-		upsertGameDB(game, setGame);
+		upsertGameDB(game);
 	}
 	navigate('/');
 	setGame(undefined);
@@ -263,7 +245,7 @@ export const getGameMode = (game: GameWithPlayer): string => {
 };
 
 export const getCurrentRound = (game: Game | undefined): GameRound =>
-	game?.rounds.at(-1) ?? getEmptyRound();
+	game?.rounds.at(-1) ?? getPlaceholderRound();
 
 export const getRoundTimerDeadline = (
 	round: GameRound,

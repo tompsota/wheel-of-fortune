@@ -10,12 +10,11 @@ import {
 } from 'react';
 
 import User from '../types/User';
-import { getUserDB, onAuthChanged } from '../utils/firebase';
+import { getUser, onAuthChanged } from '../utils/firebase';
 
 type UserState = [User | undefined, Dispatch<SetStateAction<User | undefined>>];
 const UserContext = createContext<UserState>(undefined as never);
 
-// Wrapped context provider
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
 	console.log('UserProvider - render');
 
@@ -27,7 +26,6 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
 			: (JSON.parse(localStorageUserString) as User);
 
 	const userState = useState<User | undefined>(localStorageUser);
-	// const userState = useState<User | undefined>(undefined);
 	const [_, setUser] = userState;
 
 	// // Setup onAuthChanged once when component is mounted
@@ -40,7 +38,7 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
 				localStorage.removeItem('user');
 			} else {
 				(async () => {
-					const user = await getUserDB(authUser);
+					const user = await getUser(authUser);
 					setUser(user);
 					localStorage.setItem('user', JSON.stringify(user));
 				})();

@@ -1,5 +1,7 @@
 // necessary, so that getPlayersGameInProgress() is not placed inside GameProvider
 
+// TODO: delete whole component
+
 import {
 	FC,
 	PropsWithChildren,

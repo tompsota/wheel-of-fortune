@@ -16,7 +16,6 @@ import theme from './utils/theme';
 import { GameProvider } from './hooks/useGame';
 import { GameSettingsProvider } from './hooks/useGameSettings';
 import InfoSettings from './pages/InfoSettings';
-import { GameProviderWrapper } from './components/GameProviderWrapper';
 
 const App = () => {
 	const _tmp = 0; //TODO zmazat, je to tu aby nepindal linter
@@ -35,7 +34,6 @@ const App = () => {
 				<QueryClientProvider client={new QueryClient()}>
 					<UserProvider>
 						<GameSettingsProvider>
-							{/* <GameProviderWrapper> */}
 							<GameProvider>
 								<BrowserRouter>
 									<CssBaseline />
@@ -52,7 +50,6 @@ const App = () => {
 									</AppLayout>
 								</BrowserRouter>
 							</GameProvider>
-							{/* </GameProviderWrapper> */}
 						</GameSettingsProvider>
 					</UserProvider>
 				</QueryClientProvider>
