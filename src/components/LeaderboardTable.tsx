@@ -34,13 +34,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	}
 }));
 
-const createData = (
-	name: string,
-	totalPoints: number,
-	mode: string,
-	date: string
-) => ({ name, totalPoints, mode, date });
-
 type Props = {
 	games: GameWithPlayer[];
 };
@@ -88,7 +81,9 @@ const LeaderboardTable: React.FC<Props> = ({ games }) => (
 							{getGameMode(game)}
 						</StyledTableCell>
 						<StyledTableCell align="center">
-							{game.startedAt.toString()}
+							{new Date(
+								Number(game.startedAt.toString().substring(18, 28)) * 1000
+							).toLocaleString('sk-SK')}
 						</StyledTableCell>
 					</StyledTableRow>
 				))}
