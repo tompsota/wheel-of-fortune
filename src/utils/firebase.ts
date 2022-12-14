@@ -170,6 +170,13 @@ export const getPlayersGameInProgress = (
 	return game;
 };
 
+export const leaderboardQuery = query(
+	gamesCollection,
+	where('status', '==', 'Finished'),
+	orderBy('score', 'desc'),
+	limit(10)
+);
+
 export const usersCollection = collection(
 	db,
 	'users'

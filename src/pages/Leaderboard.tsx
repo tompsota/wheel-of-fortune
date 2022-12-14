@@ -2,7 +2,7 @@ import { Stack, Typography } from '@mui/material';
 import { onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
-import { gameFromDto, gamesCollection, getUserById } from '../utils/firebase';
+import { gameFromDto, getUserById, leaderboardQuery } from '../utils/firebase';
 import LeaderboardTable from '../components/LeaderboardTable';
 import GameWithPlayer from '../types/GameWithPlayer';
 
@@ -11,7 +11,7 @@ const Leaderboard = () => {
 
 	// get all games with players included
 	useEffect(() => {
-		const unsubscribe = onSnapshot(gamesCollection, async snapshot => {
+		const unsubscribe = onSnapshot(leaderboardQuery, async snapshot => {
 			const games = await Promise.all(
 				snapshot.docs.map(async doc => {
 					const game = { ...gameFromDto(doc.data()), id: doc.id };
@@ -33,7 +33,7 @@ const Leaderboard = () => {
 				variant="h3"
 				sx={{ alignSelf: 'center', mt: '1rem', mb: '2rem' }}
 			>
-				Recent games
+				Leaderboard 🏆
 			</Typography>
 			{games === undefined || games.length === 0 ? (
 				<Typography sx={{ alignSelf: 'center', mt: '1rem', mb: '2rem' }}>

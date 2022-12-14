@@ -39,8 +39,8 @@ type Props = {
 };
 
 const LeaderboardTable: React.FC<Props> = ({ games }) => (
-	<TableContainer component={Paper}>
-		<Table sx={{ minWidth: 200 }} aria-label="customized table">
+	<TableContainer component={Paper} sx={{ maxHeight: '70vh' }}>
+		<Table stickyHeader sx={{ minWidth: 200 }} aria-label="customized table">
 			<TableHead>
 				<TableRow>
 					<StyledTableCell />
