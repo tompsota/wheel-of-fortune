@@ -1,12 +1,18 @@
-import { FC } from 'react';
-import { Stack, Typography, useTheme } from '@mui/material';
+import { FC, useEffect, useState } from 'react';
+import { duration, Stack, Typography, useTheme } from '@mui/material';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import Countdown, { CountdownTimeDelta } from 'react-countdown';
-
-// import useGame from '../hooks/useGame';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 import BoardState, { BoardRow } from '../types/Board';
-import { useGameContext } from '../hooks/useGameTest';
+import { updateCurrentRoundGame, useGameContext } from '../hooks/useGame';
+import {
+	endGame,
+	endGameWithNavigate,
+	getCurrentRound,
+	getRoundTimerDeadline
+} from '../utils/game';
 
 import Tile from './Tile';
 
@@ -16,7 +22,18 @@ type Props = {
 
 const Board: FC<Props> = ({ board }) => {
 	const theme = useTheme();
-	const [game, _setGame] = useGameContext();
+	const [game, setGame] = useGameContext();
+	const round = getCurrentRound(game);
+	const navigate = useNavigate();
+	const { enqueueSnackbar } = useSnackbar();
+	// const [timerSeconds, setTimerSeconds] = useState(round.timeLeftOnTimer ?? 0);
+
+	// useEffect(() => () => {
+	// 	round.timeLeftOnTimer = timerSeconds;
+	// 	if (game !== undefined) {
+	// 		setGame(updateCurrentRoundGame(game, round));
+	// 	}
+	// });
 
 	const boardRow = (row: BoardRow, i: number) => (
 		<Stack
@@ -30,7 +47,16 @@ const Board: FC<Props> = ({ board }) => {
 		</Stack>
 	);
 
+	// const onTick = ({ minutes, seconds }: CountdownTimeDelta) => {
+	// 	round.timeLeftOnTimer = minutes * 60 + seconds;
+	// 	if (game !== undefined) {
+	// 		setGame(updateCurrentRoundGame(game, round));
+	// 	}
+	// };
+
 	const renderer = ({ minutes, seconds, completed }: CountdownTimeDelta) => {
+		// setTimerSeconds(minutes * 60 + seconds);
+
 		if (completed) {
 			return (
 				<Typography color={theme.palette.info.main}>Time&apos;s up!</Typography>
@@ -95,7 +121,7 @@ const Board: FC<Props> = ({ board }) => {
 						</Typography>
 						{game?.settings.numberOfGuesses ? (
 							<Typography color={theme.palette.info.main}>
-								{game.settings.numberOfGuesses}
+								{round.guessesLeft}
 							</Typography>
 						) : (
 							<AllInclusiveIcon color="info" />
@@ -109,7 +135,24 @@ const Board: FC<Props> = ({ board }) => {
 							Time left:&nbsp;
 						</Typography>
 						{game?.settings.timer ? (
-							<Countdown date={Date.now() + 5000} renderer={renderer} /> //TODO set date to timestamp from DB
+							<Countdown
+								// date={Date.now() + (round.timeLeftOnTimer ?? 0) * 1000}
+								date={getRoundTimerDeadline(round, game.settings.timer)}
+								renderer={renderer}
+								onComplete={() => {
+									// endGameWithNavigate(game, setGame);
+									console.log('Board timer - onComplete');
+									endGameWithNavigate(game, setGame, navigate);
+									enqueueSnackbar(
+										'You have run out of time! Your game has been uploaded to the leaderboard.',
+										{
+											autoHideDuration: 7500
+										}
+									);
+									// navigate('/');
+								}}
+								// onTick={onTick}
+							/> //TODO set date to timestamp from DB
 						) : (
 							<AllInclusiveIcon color="info" />
 						)}

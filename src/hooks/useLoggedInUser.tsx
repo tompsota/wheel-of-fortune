@@ -8,15 +8,16 @@ import {
 	useEffect,
 	useState
 } from 'react';
-import { User } from 'firebase/auth';
 
-import { onAuthChanged } from '../utils/firebase';
+import User from '../types/User';
+import { getUser, onAuthChanged } from '../utils/firebase';
 
 type UserState = [User | undefined, Dispatch<SetStateAction<User | undefined>>];
 const UserContext = createContext<UserState>(undefined as never);
 
-// Wrapped context provider
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
+	console.log('UserProvider - render');
+
 	const localStorageUserString = localStorage.getItem('user');
 	// We load user from local storage
 	const localStorageUser =
@@ -25,17 +26,22 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
 			: (JSON.parse(localStorageUserString) as User);
 
 	const userState = useState<User | undefined>(localStorageUser);
-	// const userState = useState<User | undefined>(undefined);
 	const [_, setUser] = userState;
 
 	// // Setup onAuthChanged once when component is mounted
 	useEffect(() => {
-		onAuthChanged(u => {
-			setUser(u ?? undefined);
-			if (u === null) {
+		console.log('UserProvider - on mount');
+		onAuthChanged(authUser => {
+			console.log('auth changed');
+			if (authUser === null) {
+				setUser(undefined);
 				localStorage.removeItem('user');
 			} else {
-				localStorage.setItem('user', JSON.stringify(u));
+				(async () => {
+					const user = await getUser(authUser);
+					setUser(user);
+					localStorage.setItem('user', JSON.stringify(user));
+				})();
 			}
 		});
 	}, []);

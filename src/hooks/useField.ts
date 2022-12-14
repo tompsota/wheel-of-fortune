@@ -1,19 +1,13 @@
 import { ChangeEvent, useCallback, useState } from 'react';
 
-// import { useTranslation } from './useTranslation';
-
 const useField = (id: string, required?: boolean) => {
-	// const translate = useTranslation();
-
 	const [value, setValue] = useState('');
 	const [touched, setTouched] = useState(false);
 
 	const error = required && touched && !value;
 
 	return [
-		// Current value for convenient access
 		value,
-		// Props for the TextField
 		{
 			id,
 			value,

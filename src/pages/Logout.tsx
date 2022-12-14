@@ -3,6 +3,7 @@ import { FC, useEffect } from 'react';
 
 import { signOut } from '../utils/firebase';
 
+// TODO: await signOut, navigate to /, snackbar 'Signed out' notif ?
 const Logout: FC = () => {
 	useEffect(() => {
 		signOut();

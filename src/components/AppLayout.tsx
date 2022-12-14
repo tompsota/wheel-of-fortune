@@ -21,7 +21,7 @@ import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { Container } from '@mui/material';
 
 import useLoggedInUser from '../hooks/useLoggedInUser';
-import useGame from '../hooks/useGameTest';
+import useGame from '../hooks/useGame';
 import { getMultiplier, getScore } from '../utils/game';
 
 import AppDrawerListItem from './AppDrawerListItem';
@@ -119,14 +119,10 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 	const game = useGame();
 
 	let scoreInfo;
-	let guessesLeft;
-	let timer;
 
 	if (game !== undefined) {
 		// console.log(`AppLayout - game is not undefined`);
 		scoreInfo = `Score: ${getScore(game)} (${getMultiplier(game.settings)}x)`;
-		guessesLeft = game.rounds.at(-1)?.guessesLeft;
-		timer = game.rounds.at(-1)?.timeLeftOnTimer;
 	}
 
 	const displayInfo = game !== undefined && game.status !== 'Finished';
@@ -234,7 +230,7 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 							open={drawerOpen}
 							selected={activeTab === 3}
 							icon={<Construction />}
-							linkTo="/about"
+							linkTo="/settings"
 							onClick={() => changeActiveTab(3)}
 						/>
 
@@ -295,14 +291,14 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
     )`
 						}}
 					>
-						<Typography>{user?.displayName ?? 'Guest'}</Typography>
-						{displayInfo && timer && <Typography>{timer}s</Typography>}
+						<Typography>{user?.nickname ?? 'Guest'}</Typography>
+						{/* {displayInfo && timer && <Typography>{timer}s</Typography>} */}
 						{displayInfo && (
 							<Typography>Level {game?.rounds.length}</Typography>
 						)}
-						{displayInfo && guessesLeft && (
+						{/* {displayInfo && guessesLeft && (
 							<Typography>Guesses left: {guessesLeft}</Typography>
-						)}
+						)} */}
 						{/* <Typography>Score: {getScore(game)}</Typography> */}
 						{displayInfo && <Typography>{scoreInfo}</Typography>}
 					</Box>

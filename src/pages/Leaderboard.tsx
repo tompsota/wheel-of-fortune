@@ -3,21 +3,31 @@ import { onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 import Game from '../types/Game';
-import { gameFromDto, gamesCollection } from '../utils/firebase';
+import {
+	gameFromDto,
+	gamesCollection,
+	getUserById,
+	getUser
+} from '../utils/firebase';
 import LeaderboardTable from '../components/LeaderboardTable';
+import GameWithPlayer from '../types/GameWithPlayer';
 
 const Leaderboard = () => {
-	const [games, setGames] = useState<Game[]>();
+	const [games, setGames] = useState<GameWithPlayer[]>();
 
+	// get all games with players included
 	useEffect(() => {
-		// Call onSnapshot() to listen to changes
-		const unsubscribe = onSnapshot(gamesCollection, snapshot => {
-			// Access .docs property of snapshot
-			setGames(
-				snapshot.docs.map(doc => ({ ...gameFromDto(doc.data()), id: doc.id }))
+		const unsubscribe = onSnapshot(gamesCollection, async snapshot => {
+			const games = await Promise.all(
+				snapshot.docs.map(async doc => {
+					const game = { ...gameFromDto(doc.data()), id: doc.id };
+					const user =
+						game.playerId === null ? null : await getUserById(game.playerId);
+					return { ...game, player: user };
+				})
 			);
+			setGames(games);
 		});
-		// Don't forget to unsubscribe from listening to changes
 		return () => {
 			unsubscribe();
 		};
@@ -36,7 +46,7 @@ const Leaderboard = () => {
 					No games.
 				</Typography>
 			) : (
-				<LeaderboardTable />
+				<LeaderboardTable games={games} />
 			)}
 		</Stack>
 	);
