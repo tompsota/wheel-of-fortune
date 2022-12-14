@@ -21,8 +21,8 @@ import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { Container } from '@mui/material';
 
 import useLoggedInUser from '../hooks/useLoggedInUser';
-import useGame from '../hooks/useGame';
 import { getMultiplier, getScore } from '../utils/game';
+import useGame from '../hooks/useGame';
 
 import AppDrawerListItem from './AppDrawerListItem';
 

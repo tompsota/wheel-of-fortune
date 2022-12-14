@@ -61,7 +61,7 @@ export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 	);
 };
 
-export const useGame = () => {
+const useGame = () => {
 	const [game, _] = useContext(GameContext);
 	return game;
 };

@@ -5,7 +5,6 @@ import {
 	PropsWithChildren,
 	SetStateAction,
 	useContext,
-	useEffect,
 	useState
 } from 'react';
 
