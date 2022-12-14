@@ -129,11 +129,9 @@ export const upsertGameDB = (game: Game) => {
 	if (game.id === undefined) {
 		addDoc(gamesCollection, gameToDto(game)).then(doc => {
 			game.id = doc.id;
-			console.log(`game created, id: ${doc.id}`);
 		});
 	} else {
 		setDoc(gameDocument(game.id), gameToDto(game));
-		console.log(`game updated, id: ${game.id}`);
 	}
 };
 
@@ -169,7 +167,6 @@ export const getPlayersGameInProgress = (
 		return undefined;
 	}
 
-	// console.log(`returning recent game: ${JSON.stringify(game)}`);
 	return game;
 };
 
@@ -248,6 +245,5 @@ export const getPlayersGameInProgressAsync = async (
 		return undefined;
 	}
 
-	// console.log(`returning recent game: ${JSON.stringify(game)}`);
 	return game;
 };

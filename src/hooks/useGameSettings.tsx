@@ -17,8 +17,6 @@ const GameSettingsContext = createContext<GameSettingsState>(
 );
 
 export const GameSettingsProvider: FC<PropsWithChildren> = ({ children }) => {
-	console.log('GameSettings Provider - render');
-
 	const defaultSettings = {
 		timer: null,
 		numberOfGuesses: null

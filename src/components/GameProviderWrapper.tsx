@@ -24,8 +24,6 @@ const GameContextWrapper = createContext<GameState>(undefined as never);
 export const GameProviderWrapperTest: FC<PropsWithChildren> = ({
 	children
 }) => {
-	console.log(`GameProviderWRAPPER - render`);
-
 	const user = useLoggedInUser();
 	const [_, setGameSettings] = useGameSettingsContext();
 	const game = getPlayersGameInProgress(user?.id);
@@ -41,7 +39,6 @@ export const GameProviderWrapperTest: FC<PropsWithChildren> = ({
 
 	useEffect(() => {
 		if (game !== undefined && _game === undefined) {
-			console.log(`GameProviderWRAPPER - setting game`);
 			setGame(game);
 		}
 	}, [game]);
@@ -54,8 +51,6 @@ export const GameProviderWrapperTest: FC<PropsWithChildren> = ({
 };
 
 export const GameProviderWrapper: FC<PropsWithChildren> = ({ children }) => {
-	console.log(`GameProviderWRAPPER - render`);
-
 	const user = useLoggedInUser();
 	const [_, setGameSettings] = useGameSettingsContext();
 

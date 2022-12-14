@@ -50,7 +50,6 @@ export const GameProvider: FC<PropsWithChildren> = ({ children }) => {
 		// .. or to save a game before player has finished a single round
 		return () => {
 			if (game !== undefined) {
-				console.log(`unmount GameProvider - update game: ${game}`);
 				upsertGameDB(game);
 			}
 			window.removeEventListener('beforeunload', listener);

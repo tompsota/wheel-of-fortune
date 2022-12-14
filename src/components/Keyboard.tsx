@@ -7,8 +7,6 @@ const simulateKeyPress = (key: string) => {
 };
 
 const Keyboard = () => {
-	console.log('keyboard rendered');
-
 	const createKeyboardButton = (key: string) => (
 		<KeyboardButton
 			key={key}

@@ -16,8 +16,6 @@ type UserState = [User | undefined, Dispatch<SetStateAction<User | undefined>>];
 const UserContext = createContext<UserState>(undefined as never);
 
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
-	console.log('UserProvider - render');
-
 	const localStorageUserString = localStorage.getItem('user');
 	// We load user from local storage
 	const localStorageUser =

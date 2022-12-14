@@ -126,11 +126,9 @@ const Play = () => {
 			return;
 		}
 
-		console.log(`letter ${letter} guessed`);
 		if (round.guessedLetters.includes(letter)) {
 			// inform user that he already clicked on that letter?
 			// maybe disable those letters on on-screen KB?
-			console.log('already guessed this letter');
 			enqueueSnackbar(`You've already guessed letter ${letter.toUpperCase()}`);
 			return;
 		}
@@ -151,7 +149,6 @@ const Play = () => {
 		// >>> after a successful round, we save the game (still InProgress) to DB
 		// ... new round is added to the game only upon player clicking 'Next level'
 		if (isPhraseSolved(round.board)) {
-			console.log('phrase solved');
 			round.status = 'Pass';
 			upsertGameDB(game);
 			setSnackbarOpen(true);
@@ -192,9 +189,7 @@ const Play = () => {
 	};
 
 	useEffect(() => {
-		console.log('Play - mount');
 		if (game === undefined) {
-			console.log(`Play - on mount: game === undefined - setting new game`);
 			(async () => {
 				const newGame = await getEmptyGameFromAsync(user, gameSettings);
 				setGame(newGame);

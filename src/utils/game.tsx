@@ -39,7 +39,6 @@ export const getEmptyRoundAsync = async (
 	settings?: GameSettings
 ): Promise<GameRound> => {
 	const { phrase, author } = await getPhrase();
-	console.log(`>>> phrase: ${phrase}, ${author}`);
 	return {
 		board: createBoard(phrase),
 		status: 'InProgress',
@@ -152,7 +151,6 @@ export const endGame = (
 ) => {
 	if (game !== undefined) {
 		game.status = 'Finished';
-		console.log(`end game: ${JSON.stringify(game)}`);
 		upsertGameDB(game);
 	}
 	setGame(undefined);
@@ -165,7 +163,6 @@ export const endGameWithNavigate = (
 ) => {
 	if (game !== undefined) {
 		game.status = 'Finished';
-		console.log(`end game: ${JSON.stringify(game)}`);
 		upsertGameDB(game);
 	}
 	navigate('/');

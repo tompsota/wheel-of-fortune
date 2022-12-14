@@ -121,7 +121,6 @@ const AppLayout: FC<PropsWithChildren> = ({ children }) => {
 	let scoreInfo;
 
 	if (game !== undefined) {
-		// console.log(`AppLayout - game is not undefined`);
 		scoreInfo = `Score: ${getScore(game)} (${getMultiplier(game.settings)}x)`;
 	}
 
